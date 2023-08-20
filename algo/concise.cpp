@@ -1,5 +1,5 @@
 #include "../include/io.hpp"
-#include "../include/raw_graph.hpp"
+#include "../include/concise_graph.hpp"
 
 int main() {
 
@@ -11,14 +11,14 @@ int main() {
         std::string graph_string = status.first;
         if(graph_string=="\n") continue;
 
-        Raw_Graph graph(graph_string);
+        Concise_Graph graph(graph_string);
 
         for(int u: graph.topo_order) {
             graph.compute_safe(u);
         }
         
         std::cout<<graph.metadata<<"\n";
-        graph.print_raw_decomposition();
+        graph.print_concise_decomposition();
         if(!status.second) break;
     }
     return 0;
