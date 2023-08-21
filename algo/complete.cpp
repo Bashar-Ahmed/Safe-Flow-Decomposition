@@ -1,5 +1,5 @@
 #include "../include/io.hpp"
-#include "../include/raw.hpp"
+#include "../include/complete.hpp"
 
 int main() {
 
@@ -11,14 +11,15 @@ int main() {
         std::string graph_string = status.first;
         if(graph_string=="\n") continue;
 
-        Raw graph(graph_string);
+        Complete* graph = new Complete(graph_string);
 
-        for(int u: graph.topo_order) {
-            graph.compute_safe(u);
-        }
+        graph->decompose_path();
+        graph->compute_safe();
+        graph->compress_path();
         
-        std::cout<<graph.metadata<<"\n";
-        graph.print_raw_decomposition();
+        std::cout<<graph->metadata<<"\n";
+        graph->print_complete_decomposition();
+        delete graph;
         if(!status.second) break;
     }
     return 0;

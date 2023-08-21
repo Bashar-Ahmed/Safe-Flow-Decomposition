@@ -1,16 +1,13 @@
-#include "../include/concise_graph.hpp"
+#include "../include/concise.hpp"
 
-Concise_Graph::Concise_Graph(const std::string& graph) : Graph(graph) {
+Concise::Concise(const std::string& graph) : Graph(graph) {
     
     f_max_in.resize(nodes,0);
     f_max_out.resize(nodes,0);
-    f_in.resize(nodes,0);
-    f_out.resize(nodes,0);
     v_max_in.resize(nodes,-1);
     v_max_out.resize(nodes,-1);
     trie.resize(nodes);
     partial_result.resize(nodes);
-
 
     for(int i=0;i<nodes;i++) {
         for(auto edge: adjacency_list[i]) {
@@ -18,9 +15,7 @@ Concise_Graph::Concise_Graph(const std::string& graph) : Graph(graph) {
             int u = i;
             int v = edge.first;
             double w = edge.second;
-        
-            f_in[v] += w;
-            f_out[u] += w;
+
             if(f_max_in[v] < w) {
                 f_max_in[v] = w;
                 v_max_in[v] = u;
@@ -30,11 +25,6 @@ Concise_Graph::Concise_Graph(const std::string& graph) : Graph(graph) {
                 v_max_out[u] = v;
             }  
         } 
-    }
-
-    for(int i=0;i<nodes;i++) {
-        if(f_in[i]==0) source=i;
-        if(f_out[i]==0) sink=i;
     }
 
     std::vector<bool> visited(nodes,false);
@@ -48,7 +38,7 @@ Concise_Graph::Concise_Graph(const std::string& graph) : Graph(graph) {
     for(int i=0;i<nodes;i++) trie[i] = new Trie(i);
 }
 
-void Concise_Graph::compute_safe(int u) {
+void Concise::compute_safe(int u) {
 
     // int v_star;
     // if((u!=source)&&(u!=sink)) v_star = v_max_out[u];
@@ -71,7 +61,7 @@ void Concise_Graph::compute_safe(int u) {
     //         f_x += f_max_in[x] - f_in[x];
     //         x = k;
     //     }
-    //     leaves[v].push_front({current_node,f_x});
+    //     leaves[v].push_back({current_node,f_x});
     // }
 
     // if(v_star!=-1) {
@@ -86,11 +76,11 @@ void Concise_Graph::compute_safe(int u) {
 
     //     if((v_star==-1)||(excess<=0)) {
             
-    //         std::forward_list<int> path;
+    //         std::list<int> path;
     //         bool invalid = false;
     //         current_node = x;
     //         while(current_node->parent_node!=trie[u]->head) {
-    //             path.push_front(current_node->value);
+    //             path.push_back(current_node->value);
     //             current_node=current_node->parent_node;
     //             if(current_node==nullptr) {
     //                 invalid = true;
@@ -98,10 +88,10 @@ void Concise_Graph::compute_safe(int u) {
     //             }
     //         }
     //         if(invalid) continue;
-    //         path.push_front(current_node->value);
-    //         path.push_front(u);
+    //         path.push_back(current_node->value);
+    //         path.push_back(u);
     //         path.reverse();
-    //         concise_decomposition.push_front({f_x,path});
+    //         concise_decomposition.push_back({f_x,path});
     //     }
 
     //     if(v_star!=-1) {
@@ -114,23 +104,19 @@ void Concise_Graph::compute_safe(int u) {
     //             x = y;
     //         }
     //         if(x->children==0) {
-    //             leaves[v_star].push_front({x,f_x});
+    //             leaves[v_star].push_back({x,f_x});
     //         }
     //     }
-    // }
+    // } 
     return;
 }
 
-void Concise_Graph::print_concise_decomposition() {
-    // for(auto path: concise_decomposition) {
-    //     std::cout<<path.first<<" ";
-    //     for(auto value: path.second) std::cout<<value<<" ";
-    //     std::cout<<std::endl;
-    // }
+void Concise::print_concise_decomposition() {
+    //
     return;
 }
 
-void Concise_Graph::topo_dfs(int v, std::vector<bool>& visited) {
+void Concise::topo_dfs(int v, std::vector<bool>& visited) {
     visited[v] = true;
     for (std::pair<int,double> u : adjacency_list[v]) {
         if (!visited[u.first]) {

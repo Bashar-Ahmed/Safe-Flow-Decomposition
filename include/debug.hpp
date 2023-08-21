@@ -1,10 +1,10 @@
 #pragma once
 
 #include <iostream>
-#include <forward_list>
 #include <vector>
 #include <stack>
 #include <queue>
+#include <list>
 #include <set>
 #include <map>
 
@@ -13,7 +13,7 @@ void __p(T a);
 template<typename T, typename F>
 void __p(std::pair<T, F> a);
 template<typename T>
-void __p(std::forward_list<T> a);
+void __p(std::list<T> a);
 template<typename T>
 void __p(std::vector<T> a);
 template<typename T>
@@ -42,12 +42,13 @@ void __p(std::pair<T, F> a) {
 }
 
 template<typename T>
-void __p(std::forward_list<T> a) {
+void __p(std::list<T> a) {
     std::cout<<"{";
-    for(auto it=a.begin(); it<a.end(); it++)
-        __p(*it),std::cout<<",}"[it+1==a.end()];
+    for(auto it=a.begin(); it!=a.end();){
+        __p(*it); 
+        std::cout<<",}"[++it==a.end()];
+    }
 }
-
 template<typename T>
 void __p(std::vector<T> a) {
     std::cout<<"{";

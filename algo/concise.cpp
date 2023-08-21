@@ -1,5 +1,5 @@
 #include "../include/io.hpp"
-#include "../include/concise_graph.hpp"
+#include "../include/concise.hpp"
 
 int main() {
 
@@ -11,7 +11,7 @@ int main() {
         std::string graph_string = status.first;
         if(graph_string=="\n") continue;
 
-        Concise_Graph graph(graph_string);
+        Concise graph(graph_string);
 
         for(int u: graph.topo_order) {
             graph.compute_safe(u);

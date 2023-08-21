@@ -8,10 +8,20 @@ file(GLOB LIBS ${PROJECT_SOURCE_DIR}/src/**.cpp)
 file(GLOB EXECS ${PROJECT_SOURCE_DIR}/algo/**.cpp)
 file(GLOB TESTS ${PROJECT_SOURCE_DIR}/test/**.cpp)
 
-# EXECUTABLES
-foreach  (EXEC IN LISTS EXECS)
+foreach (EXEC IN LISTS EXECS)
     get_filename_component(ALGO ${EXEC} NAME_WE)
-    add_executable(${ALGO} ${EXEC} ${LIBS})
+    list(REMOVE_ITEM LIBS ${PROJECT_SOURCE_DIR}/src/${ALGO}.cpp)
+endforeach ()
+
+# EXECUTABLES
+foreach (EXEC IN LISTS EXECS)
+    get_filename_component(ALGO ${EXEC} NAME_WE)
+    add_executable(
+        ${ALGO} 
+        ${PROJECT_SOURCE_DIR}/algo/${ALGO}.cpp 
+        ${PROJECT_SOURCE_DIR}/src/${ALGO}.cpp 
+        ${LIBS}
+    )
 endforeach ()
 
 # TESTS

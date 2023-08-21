@@ -11,6 +11,8 @@ Graph::Graph(const std::string& graph) {
     metadata = line[0];
     nodes = stoi(line[1]);
     edges = line.size()-2;
+    f_in.resize(nodes,0);
+    f_out.resize(nodes,0);
     adjacency_list.resize(nodes);
 
     for(int i=2;i<edges+2;i++) {
@@ -23,6 +25,9 @@ Graph::Graph(const std::string& graph) {
         int v = stoi(token[1]);
         double w = stod(token[2]);
         
-        adjacency_list[u].push_front({v,w});   
+        adjacency_list[u].push_back({v,w}); 
+
+        f_in[v] += w;
+        f_out[u] += w;
     }
 }

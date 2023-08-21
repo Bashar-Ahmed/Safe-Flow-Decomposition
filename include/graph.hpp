@@ -3,12 +3,13 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <forward_list>
+#include <list>
 
 struct Graph {
-    int nodes, edges, source, sink;
+    int nodes, edges;
     std::string metadata;
-    std::vector<std::forward_list<std::pair<int,double>>> adjacency_list;
+    std::vector<double> f_in, f_out;
+    std::vector<std::list<std::pair<int,double>>> adjacency_list;
 
     Graph(const std::string& graph);
 };
