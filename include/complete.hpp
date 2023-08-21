@@ -6,8 +6,7 @@
 
 typedef std::list<std::pair<int,double>>::iterator iterator;
 
-class Complete : public Graph {
-    public:
+struct Complete : public Graph {
     std::list<std::list<std::pair<int,double>>> reverse_adjacency_list;
     std::list<std::pair<std::list<iterator>,std::pair<int,double>>> path;
     std::list<std::pair<std::list<std::pair<int,double>>,std::pair<int,double>>> result;

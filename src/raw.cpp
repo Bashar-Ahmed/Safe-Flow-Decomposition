@@ -35,7 +35,7 @@ Raw::Raw(const std::string& graph) : Graph(graph) {
     }
     std::reverse(topo_order.begin(), topo_order.end());
 
-    for(int i=0;i<nodes;i++) trie[i] = new Trie(i);
+    for(int i=0;i<nodes;i++) trie[i] = std::make_unique<Trie>(i);
 }
 
 void Raw::compute_safe(int u) {
@@ -44,7 +44,7 @@ void Raw::compute_safe(int u) {
     if((f_in[u]!=0)&&(f_out[u]!=0)) v_star = v_max_out[u];
     else v_star = -1;
 
-    Node* current_node;
+    std::shared_ptr<Node> current_node;
 
     for(std::pair<int,double> p: adjacency_list[u]) {
         int v = p.first;
@@ -69,8 +69,8 @@ void Raw::compute_safe(int u) {
     }
     
     
-    for(std::pair<Node*,double> p: leaves[u]) {
-        Node* x = p.first;
+    for(std::pair<std::shared_ptr<Node>,double> p: leaves[u]) {
+        std::shared_ptr<Node> x = p.first;
         int f_x = p.second;
         double excess = f_x-f_out[u]+f_max_out[u];
 
@@ -97,9 +97,9 @@ void Raw::compute_safe(int u) {
         if(v_star!=-1) {
             f_x = excess;
             while((f_x<=0)&&(x->children==0)) {
-                Node* y = x->parent_node;
+                std::shared_ptr<Node> y = x->parent_node;
                 f_x = f_x+f_in[y->value]-x->flow_to_parent;
-                x->parent_node=nullptr;
+                x->parent_node.reset();
                 y->children--;
                 x = y;
             }

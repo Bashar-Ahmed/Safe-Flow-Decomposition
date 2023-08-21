@@ -35,7 +35,7 @@ Concise::Concise(const std::string& graph) : Graph(graph) {
     }
     std::reverse(topo_order.begin(), topo_order.end());
 
-    for(int i=0;i<nodes;i++) trie[i] = new Trie(i);
+    for(int i=0;i<nodes;i++) trie[i] = std::make_unique<Trie>(i);
 }
 
 void Concise::compute_safe(int u) {

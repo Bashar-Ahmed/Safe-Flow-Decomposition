@@ -7,7 +7,7 @@ Node::Node(int u) {
     parent_node = nullptr;
 }
 
-Node::Node(int u, double flow, Node* parent) {
+Node::Node(int u, double flow, std::shared_ptr<Node> parent) {
     value = u;
     children = 0;
     flow_to_parent = flow;
@@ -15,16 +15,16 @@ Node::Node(int u, double flow, Node* parent) {
 }
 
 Trie::Trie(int u) {
-    head = new Node(u);
+    head = std::make_shared<Node>(u);
 }
 
-Node* Trie::insert(int u, double flow, Node* parent) {
+std::shared_ptr<Node> Trie::insert(int u, double flow, std::shared_ptr<Node> parent) {
     parent->children++;
-    Node* node = new Node(u,flow,parent);
+    std::shared_ptr<Node> node = std::make_shared<Node>(u,flow,parent);
     return node;
 }
 
-void Trie::insert(Trie* u, double flow, Node* parent) {
+void Trie::insert(std::unique_ptr<Trie>& u, double flow, std::shared_ptr<Node> parent) {
     parent->children++;
     u->head->parent_node = parent;
     u->head->flow_to_parent = flow;

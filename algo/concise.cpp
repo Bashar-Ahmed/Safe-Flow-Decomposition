@@ -11,14 +11,15 @@ int main() {
         std::string graph_string = status.first;
         if(graph_string=="\n") continue;
 
-        Concise graph(graph_string);
+        Concise* graph = new Concise(graph_string);
 
-        for(int u: graph.topo_order) {
-            graph.compute_safe(u);
+        for(int u: graph->topo_order) {
+            graph->compute_safe(u);
         }
         
-        std::cout<<graph.metadata<<"\n";
-        graph.print_concise_decomposition();
+        std::cout<<graph->metadata<<"\n";
+        graph->print_concise_decomposition();
+        delete graph;
         if(!status.second) break;
     }
     return 0;

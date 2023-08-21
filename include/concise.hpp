@@ -11,7 +11,7 @@ typedef std::pair<std::list<int>,std::list<index>> path_index;
 struct Concise : public Graph {
     std::vector<double> f_max_in, f_max_out;
     std::vector<int> v_max_in, v_max_out, topo_order;
-    std::vector<Trie*> trie;
+    std::vector<std::unique_ptr<Trie>> trie;
     std::vector<path_index> partial_result;
 
     std::list<path_index> concise_decomposition;
