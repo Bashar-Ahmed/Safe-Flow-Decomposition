@@ -15,7 +15,6 @@ int main() {
 
         graph->decompose_path();
         graph->compute_safe();
-        graph->compress_path();
         
         std::cout<<graph->metadata<<"\n";
         graph->print_maximal_safe_paths();

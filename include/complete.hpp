@@ -8,9 +8,7 @@
 typedef std::list<std::pair<int,double>>::iterator iterator;
 
 struct Complete : public Graph {
-    std::list<std::list<std::pair<int,double>>> reverse_adjacency_list;
     std::list<std::pair<std::list<iterator>,std::pair<int,double>>> path;
-    std::list<std::pair<std::list<std::pair<int,double>>,std::pair<int,double>>> result;
 
     std::list<std::pair<double,std::list<int>>> complete_repr;
 
@@ -19,6 +17,6 @@ struct Complete : public Graph {
     void insert(AC_Trie root, std::list<int>* str);
     void decompose_path();
     void compute_safe();
-    void compress_path();
+    void compress_path(double flow, std::list<int>& route, AC_Trie* root);
     void print_maximal_safe_paths();
 };

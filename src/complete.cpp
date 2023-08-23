@@ -1,5 +1,4 @@
 #include "../include/complete.hpp"
-#include "../include/debug.hpp"
 
 Complete::Complete(const std::string& graph) : Graph(graph) {}
 
@@ -47,36 +46,38 @@ void Complete::decompose_path() {
 
 void Complete::compute_safe() {
 	
+	AC_Trie root;
 	for(auto path_iter=path.begin(); path_iter!=path.end();path_iter++){
 
-		std::list<std::pair<int,double>> route;
-		auto left_iter = (*path_iter).first.begin();
+		std::list<int> route;
+		auto left_iter = path_iter->first.begin();
 		auto right_iter = left_iter;
 
-		int from_node = (*path_iter).second.first;
+		int from_node = path_iter->second.first;
 		int to_node = (**left_iter).first; 
 		double flow = (**left_iter).second;
 
-		route.push_back(**left_iter);	
+		route.push_back(from_node);
+		route.push_back(to_node);	
 		right_iter++;
 
 		while(true){  
 			
-			while((right_iter!=(*path_iter).first.end()) && (flow+(**right_iter).second-f_out[to_node]>0)) { 
+			while((right_iter!=path_iter->first.end()) && (flow+(**right_iter).second-f_out[to_node]>0)) { 
 				flow -= f_out[to_node]-(**right_iter).second;
 				to_node = (**right_iter).first;
-				route.push_back(**right_iter);
+				route.push_back(to_node);
 				right_iter++;	
 			} 
 			
-			if(left_iter!=right_iter){  
-                result.push_back({route,{from_node,flow}});
+			if((left_iter!=right_iter)&&(route.size()>2)) {
+				compress_path(flow, route, &root);
 			}
 
-			if(right_iter!=(*path_iter).first.end()){
+			if(right_iter!=path_iter->first.end()) {
 				flow -= f_out[to_node]-(**right_iter).second;
 				to_node = (**right_iter).first;
-				route.push_back(**right_iter);
+				route.push_back(to_node);
 				right_iter++;
 				
 				while((flow-(**left_iter).second+f_in[(**left_iter).first])<=0){
@@ -93,6 +94,9 @@ void Complete::compute_safe() {
 			else break;
 		}
 	}
+	root.add_fail();
+	std::list<int> str;
+	insert(root, &str);
     return;
 }
 
@@ -114,42 +118,28 @@ void Complete::insert(AC_Trie root, std::list<int>* str) {
 	}
 }
 
-void Complete::compress_path() {
+void Complete::compress_path(double flow, std::list<int>& route, AC_Trie* root) {
 
-	AC_Trie root, *current_node;
-	for(auto& path: result){
-		if(path.first.size()!=1){
-
-			current_node = &root;	
-			std::list<int> nodes;
-			int node;
-			double flow = path.second.second;
-
-			for(auto path_node: path.first) {
-				node = path_node.first;
-				nodes.push_back(node);
-				auto child = current_node->children.begin();
-				for(;child!=current_node->children.end();child++){
-					if(child->first == node){
-						current_node = &(child->second); 
-						break;	
-					}
-				}
-				if(child==current_node->children.end()){
-					AC_Trie trie;
-					trie.value = node;
-					trie.is_fail = false;
-					current_node->children.push_back({node,trie});
-					current_node = &(current_node->children.back().second);
-				}
-			}					
-			if(nodes.empty()) break;
-			current_node->flow=flow;				
+	auto current_node = root;	
+	int nodes;
+	for(auto& path_node: route) {
+		auto child = current_node->children.begin();
+		for(;child!=current_node->children.end();child++){
+			if(child->first == path_node){
+				current_node = &(child->second); 
+				break;	
+			}
 		}
-	}
-	root.add_fail();
-	std::list<int> str;
-	insert(root, &str);
+		if(child==current_node->children.end()){
+			AC_Trie trie;
+			trie.value = path_node;
+			trie.is_fail = false;
+			current_node->children.push_back(std::pair<int,AC_Trie>(path_node,trie));
+			current_node = &(current_node->children.back().second);
+		}
+	}					
+	if(nodes==0) return;
+	current_node->flow=flow;				
     return;
 }
 

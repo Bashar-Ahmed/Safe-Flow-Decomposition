@@ -87,11 +87,11 @@ void Raw::compute_safe(int u) {
                     break;
                 }
             }
-            if(invalid) continue;
-            path.push_back(current_node->value);
-            path.push_back(u);
-            path.reverse();
-            raw_repr.push_back({f_x,path});
+            if((!invalid)&&(!path.empty())) {
+                path.push_back(current_node->value);
+                path.push_back(u);
+                raw_repr.push_back({f_x,path});
+            }
         }
 
         if(v_star!=-1) {
