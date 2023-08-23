@@ -91,7 +91,7 @@ void Raw::compute_safe(int u) {
             path.push_back(current_node->value);
             path.push_back(u);
             path.reverse();
-            raw_decomposition.push_back({f_x,path});
+            raw_repr.push_back({f_x,path});
         }
 
         if(v_star!=-1) {
@@ -111,11 +111,11 @@ void Raw::compute_safe(int u) {
     return;
 }
 
-void Raw::print_raw_decomposition() {
-    for(auto path: raw_decomposition) {
+void Raw::print_maximal_safe_paths() {
+    for(auto path: raw_repr) {
         std::cout<<path.first<<" ";
         for(auto value: path.second) std::cout<<value<<" ";
-        std::cout<<std::endl;
+        std::cout<<"\n";
     }
     return;
 }

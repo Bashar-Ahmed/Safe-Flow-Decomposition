@@ -11,10 +11,10 @@ struct Raw : public Graph {
     std::vector<std::unique_ptr<Trie>> trie;
     std::vector<std::list<std::pair<std::shared_ptr<Node>,double>>> leaves;
 
-    std::list<std::pair<double,std::list<int>>> raw_decomposition;
+    std::list<std::pair<double,std::list<int>>> raw_repr;
 
     Raw(const std::string& graph);
     void compute_safe(int u);
-    void print_raw_decomposition();
+    void print_maximal_safe_paths();
     void topo_dfs(int v, std::vector<bool>& visited);
 };

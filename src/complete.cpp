@@ -96,21 +96,68 @@ void Complete::compute_safe() {
     return;
 }
 
+void Complete::insert(AC_Trie root, std::list<int>* str) {
+	
+	if(root.children.empty()) {
+		if(root.is_fail) return;
+
+		std::list<int> path;
+		for(auto& y: *str) path.push_back(y);
+		complete_repr.push_back({root.flow,path});
+	}
+	else {
+		for(auto& node: root.children){
+			str->push_back(node.first);
+			insert(node.second,str);
+			str->pop_back();
+		}
+	}
+}
+
 void Complete::compress_path() {
-    // 
+
+	AC_Trie root, *current_node;
+	for(auto& path: result){
+		if(path.first.size()!=1){
+
+			current_node = &root;	
+			std::list<int> nodes;
+			int node;
+			double flow = path.second.second;
+
+			for(auto path_node: path.first) {
+				node = path_node.first;
+				nodes.push_back(node);
+				auto child = current_node->children.begin();
+				for(;child!=current_node->children.end();child++){
+					if(child->first == node){
+						current_node = &(child->second); 
+						break;	
+					}
+				}
+				if(child==current_node->children.end()){
+					AC_Trie trie;
+					trie.value = node;
+					trie.is_fail = false;
+					current_node->children.push_back({node,trie});
+					current_node = &(current_node->children.back().second);
+				}
+			}					
+			if(nodes.empty()) break;
+			current_node->flow=flow;				
+		}
+	}
+	root.add_fail();
+	std::list<int> str;
+	insert(root, &str);
     return;
 }
 
-void Complete::print_complete_decomposition() {
-
-    for(auto it=result.begin();it!=result.end();it++){
-		if((*it).first.size()!=1){
-			std::cout<<(*it).second.second<<" "<<(*it).second.first;
-			for(auto it2=(*it).first.begin();it2!=(*it).first.end();it2++)
-				std::cout<<" "<<(*it2).first;
-			std::cout<<"\n";
-		}
-	}
-	
+void Complete::print_maximal_safe_paths() {
+	for(auto path: complete_repr) {
+        std::cout<<path.first<<" ";
+        for(auto value: path.second) std::cout<<value<<" ";
+        std::cout<<"\n";
+    }
     return;
 }

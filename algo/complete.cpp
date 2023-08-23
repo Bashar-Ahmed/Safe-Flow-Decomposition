@@ -18,7 +18,7 @@ int main() {
         graph->compress_path();
         
         std::cout<<graph->metadata<<"\n";
-        graph->print_complete_decomposition();
+        graph->print_maximal_safe_paths();
         delete graph;
         if(!status.second) break;
     }

@@ -30,3 +30,32 @@ void Trie::insert(std::unique_ptr<Trie>& u, double flow, std::shared_ptr<Node> p
     u->head->flow_to_parent = flow;
     return;
 }
+
+void AC_Trie::add_fail(){
+
+	this->fail = this;
+	std::queue<AC_Trie*> q;
+	q.push(this);
+
+	while(!q.empty()){
+		auto source = q.front(); 
+		q.pop();
+		for(auto& source_node: source->children){
+			auto target=source;
+			source_node.second.fail=NULL;
+			while(target!=this){
+				target = target->fail;
+				for(auto& target_node: target->children){
+					if(source_node.first==target_node.first){
+						source_node.second.fail=&(target_node.second);
+						target_node.second.is_fail=true;
+					    target=this;	
+						break;
+					}
+				}
+			}
+			if(source_node.second.fail==nullptr) source_node.second.fail=this;
+			q.push(&(source_node.second));
+		}
+	}	
+}

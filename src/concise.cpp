@@ -111,7 +111,7 @@ void Concise::compute_safe(int u) {
     return;
 }
 
-void Concise::print_concise_decomposition() {
+void Concise::print_maximal_safe_paths() {
     //
     return;
 }

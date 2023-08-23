@@ -12,4 +12,5 @@ struct Graph {
     std::vector<std::list<std::pair<int,double>>> adjacency_list;
 
     Graph(const std::string& graph);
+    virtual void print_maximal_safe_paths() {}
 };

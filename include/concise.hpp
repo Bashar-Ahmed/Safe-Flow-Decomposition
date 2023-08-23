@@ -14,10 +14,10 @@ struct Concise : public Graph {
     std::vector<std::unique_ptr<Trie>> trie;
     std::vector<path_index> partial_result;
 
-    std::list<path_index> concise_decomposition;
+    std::list<path_index> concise_repr;
 
     Concise(const std::string& graph);
     void compute_safe(int u);
-    void print_concise_decomposition();
+    void print_maximal_safe_paths();
     void topo_dfs(int v, std::vector<bool>& visited);
 };
