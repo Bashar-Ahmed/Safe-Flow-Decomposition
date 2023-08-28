@@ -62,7 +62,7 @@ void Raw::compute_safe(int u)
         int v = p.first;
         if (v == v_star)
             continue;
-        int f_x = p.second;
+        double f_x = p.second;
 
         current_node = trie[v]->insert(u, f_x, trie[v]->head);
         int x = u;
@@ -85,7 +85,7 @@ void Raw::compute_safe(int u)
     for (std::pair<std::shared_ptr<Node>, double> p : leaves[u])
     {
         std::shared_ptr<Node> x = p.first;
-        int f_x = p.second;
+        double f_x = p.second;
         double excess = f_x - f_out[u] + f_max_out[u];
 
         if ((v_star == -1) || (excess <= 0))
@@ -121,6 +121,7 @@ void Raw::compute_safe(int u)
                 f_x = f_x + f_in[y->value] - x->flow_to_parent;
                 x->parent_node.reset();
                 y->children--;
+                y->child.erase(x->value);
                 x = y;
             }
             if (x->children == 0)

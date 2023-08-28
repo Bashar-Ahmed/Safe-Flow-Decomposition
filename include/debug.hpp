@@ -2,16 +2,21 @@
 
 #include <iostream>
 #include <vector>
+#include <memory>
 #include <stack>
 #include <queue>
 #include <list>
 #include <set>
 #include <map>
 
+template <typename Node>
+void __p(std::shared_ptr<Node> a);
 template <typename T>
 void __p(T a);
 template <typename T, typename F>
 void __p(std::pair<T, F> a);
+template <typename T, typename F, typename G>
+void __p(std::tuple<T, F, G> a);
 template <typename T>
 void __p(std::list<T> a);
 template <typename T>
@@ -27,6 +32,16 @@ void __p(std::queue<T> a);
 template <typename T>
 void __p(std::stack<T> a);
 
+template <typename Node>
+void __p(std::shared_ptr<Node> a)
+{
+    std::cout << "{";
+    __p(a.get());
+    std::cout << ",";
+    __p(a->value);
+    std::cout << "}";
+}
+
 template <typename T>
 void __p(T a)
 {
@@ -40,6 +55,18 @@ void __p(std::pair<T, F> a)
     __p(a.first);
     std::cout << ",";
     __p(a.second);
+    std::cout << "}";
+}
+
+template <typename T, typename F, typename G>
+void __p(std::tuple<T, F, G> a)
+{
+    std::cout << "{";
+    __p(std::get<0>(a));
+    std::cout << ",";
+    __p(std::get<1>(a));
+    std::cout << ",";
+    __p(std::get<2>(a));
     std::cout << "}";
 }
 

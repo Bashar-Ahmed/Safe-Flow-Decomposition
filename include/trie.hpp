@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <queue>
 #include <list>
 
@@ -9,6 +10,7 @@ struct Node
     int value, children;
     double flow_to_parent;
     std::shared_ptr<Node> parent_node;
+    std::unordered_map<int, std::shared_ptr<Node>> child;
     Node(int u);
     Node(int u, double flow, std::shared_ptr<Node> parent);
 };
