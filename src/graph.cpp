@@ -13,8 +13,6 @@ Graph::Graph(const std::string &graph)
     metadata = line[0];
     nodes = stoi(line[1]);
     edges = line.size() - 2;
-    f_in.resize(nodes, 0);
-    f_out.resize(nodes, 0);
     adjacency_list.resize(nodes);
 
     for (int i = 2; i < edges + 2; i++)
@@ -30,8 +28,12 @@ Graph::Graph(const std::string &graph)
         double w = stod(token[2]);
 
         adjacency_list[u].push_back({v, w});
-
-        f_in[v] += w;
-        f_out[u] += w;
     }
+}
+
+void Graph::print_statistics()
+{
+    std::cout << "Nodes: " << total_nodes << "\n";
+    std::cout << "Edges: " << total_edges << "\n";
+    std::cout << "Tokens: " << length << "\n";
 }

@@ -2,11 +2,9 @@
 
 Raw::Raw(const std::string &graph) : Graph(graph)
 {
-
+    f_in.resize(nodes, 0);
     f_max_in.resize(nodes, 0);
-    f_max_out.resize(nodes, 0);
     v_max_in.resize(nodes, -1);
-    v_max_out.resize(nodes, -1);
     trie.resize(nodes);
     leaves.resize(nodes);
 
@@ -24,11 +22,7 @@ Raw::Raw(const std::string &graph) : Graph(graph)
                 f_max_in[v] = w;
                 v_max_in[v] = u;
             }
-            if (f_max_out[u] < w)
-            {
-                f_max_out[u] = w;
-                v_max_out[u] = v;
-            }
+            f_in[v] += w;
         }
     }
 
@@ -48,10 +42,22 @@ Raw::Raw(const std::string &graph) : Graph(graph)
 
 void Raw::compute_safe(int u)
 {
+    int v_max_out_u = -1;
+    double f_max_out_u = 0;
+    double f_out_u = 0;
+    for (std::pair<int, double> p : adjacency_list[u])
+    {
+        f_out_u += p.second;
+        if (f_max_out_u < p.second)
+        {
+            f_max_out_u = p.second;
+            v_max_out_u = p.first;
+        }
+    }
 
     int v_star;
-    if ((f_in[u] != 0) && (f_out[u] != 0))
-        v_star = v_max_out[u];
+    if ((f_in[u] != 0) && (f_out_u != 0))
+        v_star = v_max_out_u;
     else
         v_star = -1;
 
@@ -79,14 +85,14 @@ void Raw::compute_safe(int u)
 
     if (v_star != -1)
     {
-        trie[v_star]->insert(trie[u], f_max_out[u], trie[v_star]->head);
+        trie[v_star]->insert(trie[u], f_max_out_u, trie[v_star]->head);
     }
 
     for (std::pair<std::shared_ptr<Node>, double> p : leaves[u])
     {
         std::shared_ptr<Node> x = p.first;
         double f_x = p.second;
-        double excess = f_x - f_out[u] + f_max_out[u];
+        double excess = f_x - f_out_u + f_max_out_u;
 
         if ((v_star == -1) || (excess <= 0))
         {
@@ -121,7 +127,6 @@ void Raw::compute_safe(int u)
                 f_x = f_x + f_in[y->value] - x->flow_to_parent;
                 x->parent_node.reset();
                 y->children--;
-                y->child.erase(x->value);
                 x = y;
             }
             if (x->children == 0)
@@ -135,6 +140,7 @@ void Raw::compute_safe(int u)
 
 void Raw::print_maximal_safe_paths()
 {
+    std::cout << metadata << "\n";
     for (auto &path : raw_repr)
     {
         std::cout << path.first << " ";
@@ -142,6 +148,15 @@ void Raw::print_maximal_safe_paths()
             std::cout << value << " ";
         std::cout << "\n";
     }
+    return;
+}
+
+void Raw::calculate_statistics()
+{
+    total_nodes += nodes;
+    total_edges += edges;
+    for (auto &path : raw_repr)
+        length += path.second.size() + 1;
     return;
 }
 

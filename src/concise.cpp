@@ -3,7 +3,8 @@
 
 Concise::Concise(const std::string &graph) : Graph(graph)
 {
-
+    f_in.resize(nodes, 0);
+    f_out.resize(nodes, 0);
     f_max_in.resize(nodes, 0);
     f_max_out.resize(nodes, 0);
     v_max_in.resize(nodes, -1);
@@ -31,6 +32,8 @@ Concise::Concise(const std::string &graph) : Graph(graph)
                 f_max_out[u] = w;
                 v_max_out[u] = v;
             }
+            f_in[v] += w;
+            f_out[u] += w;
         }
     }
 
@@ -70,6 +73,7 @@ void Concise::compute_safe(int u)
         trace(v, u);
 
         current_node_v = trie[v]->insert(u, f_x, trie[v]->head);
+        trie[v]->head->child[u] = current_node_v;
         current_node_u = trie[u]->head;
         int x = current_node_u->value;
 
@@ -78,9 +82,12 @@ void Concise::compute_safe(int u)
             int k = v_max_in[x];
             trace(v, k);
 
+            auto prev_node_v = current_node_v;
             current_node_v = trie[v]->insert(k, f_max_in[x], current_node_v);
+            prev_node_v->child[k] = current_node_v;
+
             f_x += f_max_in[x] - f_in[x];
-            current_node_u = current_node_u->child[k];
+            current_node_u = current_node_u->child[k].lock();
             x = k;
         }
         trace(current_node_v.get(), current_node_v->value, f_x);
@@ -93,6 +100,7 @@ void Concise::compute_safe(int u)
     {
         trace(v_star, u);
         trie[v_star]->insert(trie[u], f_max_out[u], trie[v_star]->head);
+        trie[v_star]->head->child[trie[u]->head->value] = trie[u]->head;
     }
 
     for (path_index p : partial_result[u])
@@ -197,6 +205,7 @@ void Concise::compute_safe(int u)
 
 void Concise::print_maximal_safe_paths()
 {
+    std::cout << metadata << "\n";
     for (auto &path_ind : concise_repr)
     {
         for (auto &value : path_ind.first)
@@ -210,6 +219,19 @@ void Concise::print_maximal_safe_paths()
             std::cout << "\n";
         }
     }
+    return;
+}
+
+void Concise::calculate_statistics()
+{
+    total_nodes += nodes;
+    total_edges += edges;
+    for (auto &path_ind : concise_repr)
+    {
+        length += path_ind.first.size();
+        length += path_ind.second.size() * 3;
+    }
+
     return;
 }
 

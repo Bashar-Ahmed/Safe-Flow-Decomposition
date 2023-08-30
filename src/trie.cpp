@@ -6,7 +6,6 @@ Node::Node(int u)
 	children = 0;
 	flow_to_parent = 0.0;
 	parent_node = nullptr;
-	child.clear();
 }
 
 Node::Node(int u, double flow, std::shared_ptr<Node> parent)
@@ -15,7 +14,6 @@ Node::Node(int u, double flow, std::shared_ptr<Node> parent)
 	children = 0;
 	flow_to_parent = flow;
 	parent_node = parent;
-	child.clear();
 }
 
 Trie::Trie(int u)
@@ -27,7 +25,6 @@ std::shared_ptr<Node> Trie::insert(int u, double flow, std::shared_ptr<Node> par
 {
 	std::shared_ptr<Node> node = std::make_shared<Node>(u, flow, parent);
 	parent->children++;
-	parent->child[u] = node;
 	return node;
 }
 
@@ -36,16 +33,15 @@ void Trie::insert(std::unique_ptr<Trie> &u, double flow, std::shared_ptr<Node> p
 	u->head->parent_node = parent;
 	u->head->flow_to_parent = flow;
 	parent->children++;
-	parent->child[u->head->value] = u->head;
 	return;
 }
 
 void AC_Trie::add_fail()
 {
-
-	this->fail = this;
-	std::queue<AC_Trie *> q;
-	q.push(this);
+	std::shared_ptr<AC_Trie> shared_this = shared_from_this();
+	this->fail = shared_this;
+	std::queue<std::shared_ptr<AC_Trie>> q;
+	q.push(shared_this);
 
 	while (!q.empty())
 	{
@@ -54,24 +50,24 @@ void AC_Trie::add_fail()
 		for (auto &source_node : source->children)
 		{
 			auto target = source;
-			source_node.second.fail = NULL;
-			while (target != this)
+			source_node.second->fail.reset();
+			while (target.get() != this)
 			{
-				target = target->fail;
+				target = target->fail.lock();
 				for (auto &target_node : target->children)
 				{
 					if (source_node.first == target_node.first)
 					{
-						source_node.second.fail = &(target_node.second);
-						target_node.second.is_fail = true;
-						target = this;
+						source_node.second->fail = target_node.second;
+						target_node.second->is_fail = true;
+						target = shared_this;
 						break;
 					}
 				}
 			}
-			if (source_node.second.fail == nullptr)
-				source_node.second.fail = this;
-			q.push(&(source_node.second));
+			if (source_node.second->fail.lock().get() == nullptr)
+				source_node.second->fail = shared_this;
+			q.push(source_node.second);
 		}
 	}
 }

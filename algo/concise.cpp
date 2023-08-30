@@ -1,9 +1,10 @@
 #include "../include/io.hpp"
 #include "../include/concise.hpp"
 
-int main()
+int main(int argc, char *argv[])
 {
-
+    std::string arg = "profile";
+    bool profile = (argc > 1) && (arg.compare(argv[1]) == 0);
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
 
@@ -21,11 +22,15 @@ int main()
             graph->compute_safe(u);
         }
 
-        std::cout << graph->metadata << "\n";
-        graph->print_maximal_safe_paths();
+        if (profile)
+            graph->calculate_statistics();
+        else
+            graph->print_maximal_safe_paths();
         delete graph;
         if (!status.second)
             break;
     }
+    if (profile)
+        Graph::print_statistics();
     return 0;
 }

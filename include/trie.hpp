@@ -10,7 +10,7 @@ struct Node
     int value, children;
     double flow_to_parent;
     std::shared_ptr<Node> parent_node;
-    std::unordered_map<int, std::shared_ptr<Node>> child;
+    std::unordered_map<int, std::weak_ptr<Node>> child;
     Node(int u);
     Node(int u, double flow, std::shared_ptr<Node> parent);
 };
@@ -23,12 +23,12 @@ struct Trie
     void insert(std::unique_ptr<Trie> &u, double flow, std::shared_ptr<Node> parent);
 };
 
-struct AC_Trie
+struct AC_Trie : public std::enable_shared_from_this<AC_Trie>
 {
     bool is_fail;
     int value;
     double flow;
-    AC_Trie *fail;
-    std::list<std::pair<int, AC_Trie>> children;
+    std::weak_ptr<AC_Trie> fail;
+    std::list<std::pair<int, std::shared_ptr<AC_Trie>>> children;
     void add_fail();
 };
