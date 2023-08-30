@@ -7,7 +7,7 @@ Complete::Complete(const std::string &graph) : Graph(graph)
 
 	for (int i = 0; i < nodes; i++)
 	{
-		for (auto edge : adjacency_list[i])
+		for (auto &edge : adjacency_list[i])
 		{
 
 			int u = i;
@@ -23,9 +23,7 @@ Complete::Complete(const std::string &graph) : Graph(graph)
 void Complete::update(std::list<iterator> &list, double flow)
 {
 	for (auto &edge : list)
-	{
 		edge->second += flow;
-	}
 	return;
 }
 
@@ -67,13 +65,11 @@ void Complete::decompose_path()
 	}
 
 	for (auto &edge : path)
-	{
 		update(edge.first, edge.second.second);
-	}
 	return;
 }
 
-void Complete::insert(std::shared_ptr<AC_Trie> root, std::list<int> *str)
+void Complete::insert(std::shared_ptr<AC_Trie> root, std::list<int> &str)
 {
 
 	if (root->children.empty())
@@ -82,7 +78,7 @@ void Complete::insert(std::shared_ptr<AC_Trie> root, std::list<int> *str)
 			return;
 
 		std::list<int> path;
-		for (auto &y : *str)
+		for (auto &y : str)
 			path.push_back(y);
 		complete_repr.push_back({root->flow, path});
 	}
@@ -90,9 +86,9 @@ void Complete::insert(std::shared_ptr<AC_Trie> root, std::list<int> *str)
 	{
 		for (auto &node : root->children)
 		{
-			str->push_back(node.first);
+			str.push_back(node.first);
 			insert(node.second, str);
-			str->pop_back();
+			str.pop_back();
 		}
 	}
 }
@@ -128,9 +124,7 @@ void Complete::compute_safe()
 			}
 
 			if ((left_iter != right_iter) && (route.size() > 2))
-			{
 				compress_path(flow, route, root);
-			}
 
 			if (right_iter != path_iter->first.end())
 			{
@@ -157,7 +151,7 @@ void Complete::compute_safe()
 	}
 	root->add_fail();
 	std::list<int> str;
-	insert(root, &str);
+	insert(root, str);
 	return;
 }
 

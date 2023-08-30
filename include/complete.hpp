@@ -16,7 +16,7 @@ struct Complete : public Graph
 
     Complete(const std::string &graph);
     void update(std::list<iterator> &list, double flow);
-    void insert(std::shared_ptr<AC_Trie> root, std::list<int> *str);
+    void insert(std::shared_ptr<AC_Trie> root, std::list<int> &str);
     void decompose_path();
     void compute_safe();
     void compress_path(double flow, std::list<int> &route, std::shared_ptr<AC_Trie> root);

@@ -15,7 +15,7 @@ Concise::Concise(const std::string &graph) : Graph(graph)
 
     for (int i = 0; i < nodes; i++)
     {
-        for (auto edge : adjacency_list[i])
+        for (auto &edge : adjacency_list[i])
         {
 
             int u = i;
@@ -41,9 +41,7 @@ Concise::Concise(const std::string &graph) : Graph(graph)
     for (int i = 0; i < nodes; i++)
     {
         if (!visited[i])
-        {
             topo_dfs(i, visited);
-        }
     }
     std::reverse(topo_order.begin(), topo_order.end());
 
@@ -241,9 +239,7 @@ void Concise::topo_dfs(int v, std::vector<bool> &visited)
     for (std::pair<int, double> u : adjacency_list[v])
     {
         if (!visited[u.first])
-        {
             topo_dfs(u.first, visited);
-        }
     }
     topo_order.push_back(v);
     return;

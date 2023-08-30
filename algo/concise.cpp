@@ -18,9 +18,7 @@ int main(int argc, char *argv[])
         Concise *graph = new Concise(graph_string);
 
         for (int u : graph->topo_order)
-        {
             graph->compute_safe(u);
-        }
 
         if (profile)
             graph->calculate_statistics();

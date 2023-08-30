@@ -10,7 +10,7 @@ graphs = [graph for graph in graphs.split("\n") if len(graph) > 0]
 complete = [[], [], []]
 raw = [[], [], []]
 colour = {"complete": "blue", "raw": "red", "concise": "yellow", "optimal": "xyz"}
-labels = ["tokens", "time", "memory"]
+labels = ["Tokens", "Time", "Memory"]
 
 plt.figure(dpi=1200)
 
@@ -40,11 +40,11 @@ for algo in algos:
         plt.subplot(2, 3, 1 + i)
         plt.xlabel("Nodes")
         plt.ylabel(labels[i])
-        plt.scatter(nodes, globals()[algo][i], c=colour[algo], s=5)
+        plt.scatter(nodes, globals()[algo][i], c=colour[algo], s=3)
         plt.subplot(2, 3, 4 + i)
         plt.xlabel("Edges")
         plt.ylabel(labels[i])
-        plt.scatter(edges, globals()[algo][i], c=colour[algo], s=5)
+        plt.scatter(edges, globals()[algo][i], c=colour[algo], s=3)
 print(raw)
 print(complete)
 plt.tight_layout()

@@ -10,7 +10,7 @@ Raw::Raw(const std::string &graph) : Graph(graph)
 
     for (int i = 0; i < nodes; i++)
     {
-        for (auto edge : adjacency_list[i])
+        for (auto &edge : adjacency_list[i])
         {
 
             int u = i;
@@ -30,9 +30,7 @@ Raw::Raw(const std::string &graph) : Graph(graph)
     for (int i = 0; i < nodes; i++)
     {
         if (!visited[i])
-        {
             topo_dfs(i, visited);
-        }
     }
     std::reverse(topo_order.begin(), topo_order.end());
 
@@ -84,9 +82,7 @@ void Raw::compute_safe(int u)
     }
 
     if (v_star != -1)
-    {
         trie[v_star]->insert(trie[u], f_max_out_u, trie[v_star]->head);
-    }
 
     for (std::pair<std::shared_ptr<Node>, double> p : leaves[u])
     {
@@ -130,9 +126,7 @@ void Raw::compute_safe(int u)
                 x = y;
             }
             if (x->children == 0)
-            {
                 leaves[v_star].push_back({x, f_x});
-            }
         }
     }
     return;
@@ -166,9 +160,7 @@ void Raw::topo_dfs(int v, std::vector<bool> &visited)
     for (std::pair<int, double> u : adjacency_list[v])
     {
         if (!visited[u.first])
-        {
             topo_dfs(u.first, visited);
-        }
     }
     topo_order.push_back(v);
     return;
