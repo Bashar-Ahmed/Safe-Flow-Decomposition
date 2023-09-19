@@ -10,7 +10,7 @@ Raw::Raw(const std::string &graph) : Graph(graph)
 
     for (int i = 0; i < nodes; i++)
     {
-        for (auto &edge : adjacency_list[i])
+        for (auto &&edge : adjacency_list[i])
         {
 
             int u = i;
@@ -43,7 +43,7 @@ void Raw::compute_safe(int u)
     int v_max_out_u = -1;
     double f_max_out_u = 0;
     double f_out_u = 0;
-    for (std::pair<int, double> p : adjacency_list[u])
+    for (auto &&p : adjacency_list[u])
     {
         f_out_u += p.second;
         if (f_max_out_u < p.second)
@@ -61,7 +61,7 @@ void Raw::compute_safe(int u)
 
     std::shared_ptr<Node> current_node;
 
-    for (std::pair<int, double> p : adjacency_list[u])
+    for (auto &&p : adjacency_list[u])
     {
         int v = p.first;
         if (v == v_star)
@@ -78,13 +78,13 @@ void Raw::compute_safe(int u)
             f_x += f_max_in[x] - f_in[x];
             x = k;
         }
-        leaves[v].push_back({current_node, f_x});
+        leaves[v].push_back({std::move(current_node), f_x});
     }
 
     if (v_star != -1)
         trie[v_star]->insert(trie[u], f_max_out_u, trie[v_star]->head);
 
-    for (std::pair<std::shared_ptr<Node>, double> p : leaves[u])
+    for (auto &&p : leaves[u])
     {
         std::shared_ptr<Node> x = p.first;
         double f_x = p.second;
@@ -110,7 +110,7 @@ void Raw::compute_safe(int u)
             {
                 path.push_back(current_node->value);
                 path.push_back(u);
-                raw_repr.push_back({f_x, path});
+                raw_repr.push_back({f_x, std::move(path)});
             }
         }
 
@@ -135,10 +135,10 @@ void Raw::compute_safe(int u)
 void Raw::print_maximal_safe_paths()
 {
     std::cout << metadata << "\n";
-    for (auto &path : raw_repr)
+    for (auto &&path : raw_repr)
     {
         std::cout << path.first << " ";
-        for (auto &value : path.second)
+        for (auto &&value : path.second)
             std::cout << value << " ";
         std::cout << "\n";
     }
@@ -149,7 +149,7 @@ void Raw::calculate_statistics()
 {
     total_nodes += nodes;
     total_edges += edges;
-    for (auto &path : raw_repr)
+    for (auto &&path : raw_repr)
         length += path.second.size() + 1;
     return;
 }
@@ -157,7 +157,7 @@ void Raw::calculate_statistics()
 void Raw::topo_dfs(int v, std::vector<bool> &visited)
 {
     visited[v] = true;
-    for (std::pair<int, double> u : adjacency_list[v])
+    for (auto &&u : adjacency_list[v])
     {
         if (!visited[u.first])
             topo_dfs(u.first, visited);

@@ -12,15 +12,15 @@ struct Node
     std::shared_ptr<Node> parent_node;
     std::unordered_map<int, std::weak_ptr<Node>> child;
     Node(int u);
-    Node(int u, double flow, std::shared_ptr<Node> parent);
+    Node(int u, double flow, const std::shared_ptr<Node> &parent);
 };
 
 struct Trie
 {
     std::shared_ptr<Node> head;
     Trie(int u);
-    std::shared_ptr<Node> insert(int u, double flow, std::shared_ptr<Node> parent);
-    void insert(std::unique_ptr<Trie> &u, double flow, std::shared_ptr<Node> parent);
+    std::shared_ptr<Node> insert(int u, double flow, const std::shared_ptr<Node> &parent);
+    void insert(std::unique_ptr<Trie> &u, double flow, const std::shared_ptr<Node> &parent);
 };
 
 struct AC_Trie : public std::enable_shared_from_this<AC_Trie>
