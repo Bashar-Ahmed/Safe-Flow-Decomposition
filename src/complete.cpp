@@ -7,7 +7,7 @@ Complete::Complete(const std::string &graph) : Graph(graph)
 
 	for (int i = 0; i < nodes; i++)
 	{
-		for (auto &edge : adjacency_list[i])
+		for (auto &&edge : adjacency_list[i])
 		{
 
 			int u = i;
@@ -20,17 +20,10 @@ Complete::Complete(const std::string &graph) : Graph(graph)
 	}
 }
 
-void Complete::update(std::list<iterator> &list, double flow)
-{
-	for (auto &edge : list)
-		edge->second += flow;
-	return;
-}
-
 void Complete::decompose_path()
 {
 
-	for (int i = 0; i < (int)adjacency_list.size(); i++)
+	for (int i = 0; i < nodes; i++)
 	{
 		if (f_in[i] == 0)
 		{
@@ -40,51 +33,51 @@ void Complete::decompose_path()
 				{
 
 					std::pair<int, double> flow = {i, std::numeric_limits<double>::max()};
-					std::list<iterator> route;
+					std::vector<iterator> route;
 					iterator current_edge = edge;
 
 					while (true)
 					{
 
-						flow.second = std::min(flow.second, current_edge->second);
 						route.push_back(current_edge);
+						auto current_edge_value = *current_edge;
+						flow.second = std::min(flow.second, current_edge_value.second);
 
-						if (f_out[current_edge->first] == 0)
+						if (f_out[current_edge_value.first] == 0)
 							break;
 
-						auto next_edge = adjacency_list[current_edge->first].begin();
+						auto next_edge = adjacency_list[current_edge_value.first].begin();
 						while (next_edge->second == 0)
 							next_edge++;
 						current_edge = next_edge;
 					}
-					path.push_back({route, flow});
-					update(route, -flow.second);
+
+					for (auto &&edge : route)
+						edge->second -= flow.second;
+					path.push_back({std::move(route), flow});
 				}
 			}
 		}
 	}
 
-	for (auto &edge : path)
-		update(edge.first, edge.second.second);
+	for (auto &&edge_list : path)
+		for (auto &&edge : edge_list.first)
+			edge->second += edge_list.second.second;
 	return;
 }
 
-void Complete::insert(std::shared_ptr<AC_Trie> root, std::list<int> &str)
+void Complete::insert(std::shared_ptr<AC_Trie> root, std::vector<int> &str)
 {
 
 	if (root->children.empty())
 	{
 		if (root->is_fail)
 			return;
-
-		std::list<int> path;
-		for (auto &y : str)
-			path.push_back(y);
-		complete_repr.push_back({root->flow, path});
+		complete_repr.push_back({root->flow, str});
 	}
 	else
 	{
-		for (auto &node : root->children)
+		for (auto &&node : root->children)
 		{
 			str.push_back(node.first);
 			insert(node.second, str);
@@ -97,80 +90,99 @@ void Complete::compute_safe()
 {
 
 	std::shared_ptr<AC_Trie> root = std::make_shared<AC_Trie>();
-	for (auto path_iter = path.begin(); path_iter != path.end(); path_iter++)
+	for (auto &&path_value : path)
 	{
 
-		std::list<int> route;
-		auto left_iter = path_iter->first.begin();
+		std::deque<int> route;
+		auto left_iter = path_value.first.begin();
 		auto right_iter = left_iter;
+		auto left_value = **left_iter;
+		auto right_value = **right_iter;
 
-		int from_node = path_iter->second.first;
-		int to_node = (**left_iter).first;
-		double flow = (**left_iter).second;
+		int from_node = path_value.second.first;
+		int to_node = left_value.first;
+		double flow = left_value.second;
 
 		route.push_back(from_node);
 		route.push_back(to_node);
 		right_iter++;
+		right_value = **right_iter;
 
 		while (true)
 		{
-
-			while ((right_iter != path_iter->first.end()) && (flow + (**right_iter).second - f_out[to_node] > 0))
+			auto path_end = path_value.first.end();
+			if (right_iter != path_end)
 			{
-				flow -= f_out[to_node] - (**right_iter).second;
-				to_node = (**right_iter).first;
-				route.push_back(to_node);
-				right_iter++;
+				while (flow + right_value.second - f_out[to_node] > 0)
+				{
+					flow -= f_out[to_node] - right_value.second;
+					to_node = right_value.first;
+					route.push_back(to_node);
+					right_iter++;
+					if (right_iter != path_end)
+						right_value = **right_iter;
+					else
+						break;
+				}
 			}
 
 			if ((left_iter != right_iter) && (route.size() > 2))
 				compress_path(flow, route, root);
 
-			if (right_iter != path_iter->first.end())
+			if (right_iter != path_end)
 			{
-				flow -= f_out[to_node] - (**right_iter).second;
-				to_node = (**right_iter).first;
+				flow -= f_out[to_node] - right_value.second;
+				to_node = right_value.first;
 				route.push_back(to_node);
 				right_iter++;
+				if (right_iter != path_end)
+					right_value = **right_iter;
 
-				while ((flow - (**left_iter).second + f_in[(**left_iter).first]) <= 0)
+				while ((flow - left_value.second + f_in[left_value.first]) <= 0)
 				{
-					flow += f_in[(**left_iter).first] - (**left_iter).second;
+					flow += f_in[left_value.first] - left_value.second;
 					route.pop_front();
 					left_iter++;
+					if (left_iter != path_end)
+						left_value = **left_iter;
 				}
 
-				from_node = (**left_iter).first;
-				flow += f_in[(**left_iter).first] - (**left_iter).second;
+				from_node = left_value.first;
+				flow += f_in[left_value.first] - left_value.second;
 				route.pop_front();
 				left_iter++;
+				if (left_iter != path_end)
+					left_value = **left_iter;
 			}
 			else
 				break;
 		}
 	}
 	root->add_fail();
-	std::list<int> str;
+	std::vector<int> str;
 	insert(root, str);
 	return;
 }
 
-void Complete::compress_path(double flow, std::list<int> &route, std::shared_ptr<AC_Trie> root)
+void Complete::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> root)
 {
 
 	auto current_node = root;
-	for (auto &path_node : route)
+	for (auto &&path_node : route)
 	{
-		auto child = current_node->children.begin();
-		for (; child != current_node->children.end(); child++)
+		auto &children = current_node->children;
+		int children_count = children.size();
+		bool list_end = true;
+		for (int i = 0; i < children_count; i++)
 		{
-			if (child->first == path_node)
+			if (children[i].first == path_node)
 			{
-				current_node = child->second;
+				current_node = children[i].second;
+				list_end = false;
 				break;
 			}
 		}
-		if (child == current_node->children.end())
+		if (list_end)
 		{
 			std::shared_ptr<AC_Trie> trie = std::make_shared<AC_Trie>();
 			trie->value = path_node;
@@ -186,10 +198,10 @@ void Complete::compress_path(double flow, std::list<int> &route, std::shared_ptr
 void Complete::print_maximal_safe_paths()
 {
 	std::cout << metadata << "\n";
-	for (auto &path : complete_repr)
+	for (auto &&path : complete_repr)
 	{
 		std::cout << path.first << " ";
-		for (auto &value : path.second)
+		for (auto &&value : path.second)
 			std::cout << value << " ";
 		std::cout << "\n";
 	}
@@ -200,7 +212,7 @@ void Complete::calculate_statistics()
 {
 	total_nodes += nodes;
 	total_edges += edges;
-	for (auto &path : complete_repr)
+	for (auto &&path : complete_repr)
 		length += path.second.size() + 1;
 	return;
 }

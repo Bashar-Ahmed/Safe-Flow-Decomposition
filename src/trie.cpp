@@ -47,14 +47,14 @@ void AC_Trie::add_fail()
 	{
 		auto source = q.front();
 		q.pop();
-		for (auto &source_node : source->children)
+		for (auto &&source_node : source->children)
 		{
 			auto target = source;
 			source_node.second->fail.reset();
 			while (target.get() != this)
 			{
 				target = target->fail.lock();
-				for (auto &target_node : target->children)
+				for (auto &&target_node : target->children)
 				{
 					if (source_node.first == target_node.first)
 					{

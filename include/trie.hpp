@@ -29,6 +29,6 @@ struct AC_Trie : public std::enable_shared_from_this<AC_Trie>
     int value;
     double flow;
     std::weak_ptr<AC_Trie> fail;
-    std::list<std::pair<int, std::shared_ptr<AC_Trie>>> children;
+    std::vector<std::pair<int, std::shared_ptr<AC_Trie>>> children;
     void add_fail();
 };

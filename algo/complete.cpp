@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     {
         std::string graph_string = read_graph();
         if (graph_string == "")
-            continue;
+            break;
 
         Complete *graph = new Complete(graph_string);
 

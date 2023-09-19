@@ -10,7 +10,7 @@ struct Graph
 {
     int nodes, edges;
     std::string metadata;
-    std::vector<std::list<std::pair<int, double>>> adjacency_list;
+    std::vector<std::vector<std::pair<int, double>>> adjacency_list;
 
     Graph(const std::string &graph);
     virtual ~Graph() {}
