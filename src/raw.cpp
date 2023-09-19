@@ -110,7 +110,8 @@ void Raw::compute_safe(int u)
             {
                 path.push_back(current_node->value);
                 path.push_back(u);
-                raw_repr.push_back({f_x, std::move(path)});
+                raw_repr.push_back({f_x, std::vector<int>{std::make_move_iterator(std::begin(path)),
+                                                          std::make_move_iterator(std::end(path))}});
             }
         }
 

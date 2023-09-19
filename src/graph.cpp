@@ -1,5 +1,9 @@
 #include "../include/graph.hpp"
 
+int Graph::length = 0;
+int Graph::total_nodes = 0;
+int Graph::total_edges = 0;
+
 Graph::Graph(const std::string &graph)
 {
     std::stringstream lines(graph);
@@ -43,4 +47,16 @@ void Graph::print_statistics()
     std::cout << "Nodes: " << total_nodes << "\n";
     std::cout << "Edges: " << total_edges << "\n";
     std::cout << "Tokens: " << length << "\n";
+}
+
+std::string read_graph()
+{
+    std::string temp;
+    while (std::getline(std::cin, temp, '#'))
+    {
+        if (temp.length() == 0)
+            continue;
+        return temp;
+    }
+    return "";
 }

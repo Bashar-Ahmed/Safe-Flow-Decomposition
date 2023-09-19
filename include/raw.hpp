@@ -13,7 +13,7 @@ struct Raw : public Graph
     std::vector<std::unique_ptr<Trie>> trie;
     std::vector<std::list<std::pair<std::shared_ptr<Node>, double>>> leaves;
 
-    std::list<std::pair<double, std::list<int>>> raw_repr;
+    std::vector<std::pair<double, std::vector<int>>> raw_repr;
 
     Raw(const std::string &graph);
     void compute_safe(int u);

@@ -17,8 +17,10 @@ struct Graph
     virtual void print_maximal_safe_paths() {}
     virtual void calculate_statistics() {}
 
-    static inline int length = 0;
-    static inline int total_nodes = 0;
-    static inline int total_edges = 0;
+    static int length;
+    static int total_nodes;
+    static int total_edges;
     static void print_statistics();
 };
+
+std::string read_graph();
