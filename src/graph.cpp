@@ -2,33 +2,40 @@
 
 Graph::Graph(const std::string &graph)
 {
-
-    std::vector<std::string> line;
     std::stringstream lines(graph);
     std::string temp;
 
+    int line = 0;
     while (std::getline(lines, temp, '\n'))
-        line.push_back(temp);
-
-    metadata = line[0];
-    nodes = stoi(line[1]);
-    edges = line.size() - 2;
-    adjacency_list.resize(nodes);
-
-    for (int i = 2; i < edges + 2; i++)
     {
-
-        std::vector<std::string> token;
-        std::stringstream tokens(line[i]);
-        while (std::getline(tokens, temp, ' '))
-            token.push_back(temp);
-
-        int u = stoi(token[0]);
-        int v = stoi(token[1]);
-        double w = stod(token[2]);
-
-        adjacency_list[u].push_back({v, w});
+        if (line == 0)
+            metadata = "#" + temp;
+        else if (line == 1)
+        {
+            nodes = stoi(temp);
+            adjacency_list.resize(nodes);
+        }
+        else
+        {
+            std::stringstream tokens(temp);
+            int token = 0;
+            int u, v;
+            double w;
+            while (std::getline(tokens, temp, ' '))
+            {
+                if (token == 0)
+                    u = stoi(temp);
+                else if (token == 1)
+                    v = stoi(temp);
+                else
+                    w = stod(temp);
+                token++;
+            }
+            adjacency_list[u].push_back({v, w});
+        }
+        line++;
     }
+    edges = line - 2;
 }
 
 void Graph::print_statistics()

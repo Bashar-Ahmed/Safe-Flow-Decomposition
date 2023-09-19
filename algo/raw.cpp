@@ -10,10 +10,9 @@ int main(int argc, char *argv[])
 
     while (true)
     {
-        std::pair<std::string, bool> status = read_graph();
-        std::string graph_string = status.first;
-        if (graph_string == "\n")
-            continue;
+        std::string graph_string = read_graph();
+        if (graph_string == "")
+            break;
 
         Raw *graph = new Raw(graph_string);
 
@@ -25,8 +24,6 @@ int main(int argc, char *argv[])
         else
             graph->print_maximal_safe_paths();
         delete graph;
-        if (!status.second)
-            break;
     }
     if (profile)
         Graph::print_statistics();

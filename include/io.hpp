@@ -3,4 +3,4 @@
 #include <iostream>
 #include <string>
 
-std::pair<std::string, bool> read_graph();
+std::string read_graph();
