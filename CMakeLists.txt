@@ -1,11 +1,12 @@
 
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -g")
 
 project(SAFE_FLOW_DECOMPOSITION)
 
 file(GLOB LIBS ${PROJECT_SOURCE_DIR}/src/**.cpp)
+file(GLOB ALGOS ${PROJECT_SOURCE_DIR}/src/**.cpp)
 file(GLOB EXECS ${PROJECT_SOURCE_DIR}/algo/**.cpp)
 file(GLOB TESTS ${PROJECT_SOURCE_DIR}/test/**.cpp)
 
@@ -28,6 +29,6 @@ endforeach ()
 # TESTS
 enable_testing()
 find_package(GTest REQUIRED)
-add_executable(G_TESTS ${TESTS} ${LIBS})
+add_executable(G_TESTS ${TESTS} ${ALGOS})
 target_link_libraries(G_TESTS GTest::gtest_main)
 gtest_discover_tests(G_TESTS)

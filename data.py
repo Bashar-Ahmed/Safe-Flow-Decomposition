@@ -37,5 +37,5 @@ for algo in algos:
 
 data = {"nodes": nodes, "edges": edges, "raw": raw, "complete": complete}
 
-with open("data_O3.json", "w") as file:
+with open("data_1000.json", "w") as file:
     json.dump(data, file)

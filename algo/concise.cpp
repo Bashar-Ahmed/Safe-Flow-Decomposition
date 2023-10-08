@@ -1,4 +1,3 @@
-#include "../include/io.hpp"
 #include "../include/concise.hpp"
 
 int main(int argc, char *argv[])
@@ -12,7 +11,7 @@ int main(int argc, char *argv[])
     {
         std::string graph_string = read_graph();
         if (graph_string == "")
-            continue;
+            break;
 
         Concise *graph = new Concise(graph_string);
 

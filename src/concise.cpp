@@ -11,7 +11,7 @@ Concise::Concise(const std::string &graph) : Graph(graph)
     v_max_out.resize(nodes, -1);
     trie.resize(nodes);
     partial_result.resize(nodes);
-    mark.resize(nodes);
+    // mark.resize(nodes);
 
     for (int i = 0; i < nodes; i++)
     {
@@ -46,20 +46,24 @@ Concise::Concise(const std::string &graph) : Graph(graph)
     std::reverse(topo_order.begin(), topo_order.end());
 
     for (int i = 0; i < nodes; i++)
-        trie[i] = std::make_unique<Trie>(i);
+        trie[i] = std::make_unique<Path_Trie<ALGO::CONCISE>>(i);
 }
 
 void Concise::compute_safe(int u)
 {
+    for (int i = 0; i < nodes; i++)
+    {
+        trace(i, partial_result[i]);
+    }
+    trace(concise_repr);
     int v_star;
-    std::list<int> M;
 
     if ((f_in[u] != 0) && (f_out[u] != 0))
         v_star = v_max_out[u];
     else
         v_star = -1;
 
-    std::shared_ptr<Node> current_node_v, current_node_u;
+    std::shared_ptr<Node<ALGO::CONCISE>> current_node_v, current_node_u;
 
     for (std::pair<int, double> p : adjacency_list[u])
     {
@@ -67,50 +71,42 @@ void Concise::compute_safe(int u)
         if (v == v_star)
             continue;
         double f_x = p.second;
-
-        trace(v, u);
-
+        trace(u, v);
         current_node_v = trie[v]->insert(u, f_x, trie[v]->head);
+
         trie[v]->head->child[u] = current_node_v;
         current_node_u = trie[u]->head;
         int x = current_node_u->value;
-
         while ((current_node_u->children > 0) && (f_x - f_in[x] + f_max_in[x] > 0))
         {
             int k = v_max_in[x];
-            trace(v, k);
-
+            trace(k, current_node_v);
             auto prev_node_v = current_node_v;
             current_node_v = trie[v]->insert(k, f_max_in[x], current_node_v);
             prev_node_v->child[k] = current_node_v;
 
             f_x += f_max_in[x] - f_in[x];
-            current_node_u = current_node_u->child[k].lock();
+            current_node_u = current_node_u->child[k];
             x = k;
         }
-        trace(current_node_v.get(), current_node_v->value, f_x);
         partial_result[v].push_back({{}, {{current_node_v, v, f_x}}});
-        mark[x].push(v);
-        M.push_back(x);
+        mark[current_node_v].push_back(v);
     }
-
     if (v_star != -1)
     {
-        trace(v_star, u);
-        trie[v_star]->insert(trie[u], f_max_out[u], trie[v_star]->head);
+        trace(u, v_star);
+        trie[v_star]->merge(trie[u], f_max_out[u]);
         trie[v_star]->head->child[trie[u]->head->value] = trie[u]->head;
     }
-
     for (path_index p : partial_result[u])
     {
-        // trace(u, p);
-        trace(p);
+
         std::list<int> p_k = p.first;
         std::list<index> I_k = p.second;
-        index last = I_k.back();
-        std::shared_ptr<Node> l_i = std::get<0>(last);
+        index last = *I_k.rbegin();
+        std::shared_ptr<Node<ALGO::CONCISE>> l_i = std::get<0>(last);
         double f_x, f_i = std::get<2>(last);
-        std::shared_ptr<Node> x_node = l_i;
+        std::shared_ptr<Node<ALGO::CONCISE>> x_node = l_i;
         int x = x_node->value;
 
         if (v_star == -1)
@@ -119,25 +115,23 @@ void Concise::compute_safe(int u)
             f_x = f_i - f_out[u] + f_max_out[u];
 
         std::list<int> path;
-        while ((f_x <= 0) && (mark[x].empty()) && (x != u))
+        while ((f_x <= 0) && (mark[x_node].empty()) && (x != u))
         {
-            trace(u, x_node->value, x_node.get());
-            std::shared_ptr<Node> y = x_node->parent_node;
-            if (y->children > 1)
+            std::shared_ptr<Node<ALGO::CONCISE>> y = x_node->parent_node;
+            if (x_node->children <= 0)
             {
-                trace(x, y->value);
                 f_x = f_x + f_in[y->value] - x_node->flow_to_parent;
                 // x_node->parent_node.reset();
                 y->children--;
-                y->child.erase(x);
             }
+            else
+                break;
 
             path.push_back(x);
             x = y->value;
             x_node = y;
         }
-        // trace(path);
-        // path.push_back(x);
+
         auto it = path.begin();
         for (auto &path_element : p_k)
         {
@@ -151,39 +145,27 @@ void Concise::compute_safe(int u)
             p_k.push_back(*it);
             it++;
         }
-        // trace(p_k, path);
-        // if (x_node->parent_node == nullptr)
-        //     trace(path, f_x, mark[x], I_k);
-        if (f_x > 0)
 
+        if (f_x > 0)
         {
-            trace(x_node.get(), l_i.get());
-            trace(x_node->value, v_star, f_x);
             if (l_i != x_node)
                 I_k.push_back({x_node, v_star, f_x});
             else
-            {
-                I_k.pop_back();
-                I_k.push_back({l_i, v_star, f_x});
-            }
-            trace(I_k);
+                I_k.back() = {l_i, v_star, f_x};
             partial_result[v_star].push_back({p_k, I_k});
         }
         else
         {
-            if (!mark[x].empty())
+            if (!mark[x_node].empty())
             {
-                trace(mark[x]);
-
-                int v = mark[x].front();
-                mark[x].pop();
+                int v = mark[x_node].front();
+                mark[x_node].pop_front();
                 std::list<index> I_v = partial_result[v].back().second;
                 partial_result[v].pop_back();
-                for (auto &ind : I_k)
-                    I_v.push_back(ind);
-                trace(I_v);
+                for (auto &ind : I_v)
+                    I_k.push_back(ind);
 
-                partial_result[v].push_back({p_k, I_v});
+                partial_result[v].push_back({p_k, I_k});
             }
             else
             {
@@ -193,11 +175,8 @@ void Concise::compute_safe(int u)
             }
         }
     }
-    for (auto &x : M)
-    {
-        std::queue<int> f;
-        mark[x] = f;
-    }
+    mark.clear();
+
     return;
 }
 

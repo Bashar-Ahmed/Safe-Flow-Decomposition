@@ -6,9 +6,10 @@
 
 TEST(RAW, raw)
 {
+    std::ifstream input_file, truth_file;
 
-    freopen("../test/test.graph", "r", stdin);
-
+    input_file.open("../test/test.graph", std::ifstream::in);
+    std::cin.rdbuf(input_file.rdbuf());
     std::vector<std::pair<double, std::vector<int>>> truth, raw_result;
 
     std::string graph_string = read_graph();
@@ -17,7 +18,6 @@ TEST(RAW, raw)
         graph->compute_safe(u);
     raw_result = std::move(graph->raw_repr);
 
-    std::ifstream truth_file;
     truth_file.open("../test/test.truth", std::ifstream::in);
     std::string metadata, line, token;
     std::getline(truth_file, metadata);

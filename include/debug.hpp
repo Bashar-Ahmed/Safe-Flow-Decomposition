@@ -11,6 +11,8 @@
 
 template <typename Node>
 void __p(std::shared_ptr<Node> a);
+template <typename Node>
+void __p(std::weak_ptr<Node> a);
 template <typename T>
 void __p(T a);
 template <typename T, typename F>
@@ -28,6 +30,8 @@ void __p(std::multiset<T> a);
 template <typename T, typename F>
 void __p(std::map<T, F> a);
 template <typename T>
+void __p(std::deque<T> a);
+template <typename T>
 void __p(std::queue<T> a);
 template <typename T>
 void __p(std::stack<T> a);
@@ -36,11 +40,17 @@ template <typename Node>
 void __p(std::shared_ptr<Node> a)
 {
     std::cout << "{";
-    __p(a.get());
-    std::cout << ",";
     __p(a->value);
+    std::cout << ",";
+    __p(a.get());
     std::cout << "}";
 }
+
+// template <typename Node>
+// void __p(std::weak_ptr<Node> a)
+// {
+//     __p(a);
+// }
 
 template <typename T>
 void __p(T a)
@@ -96,6 +106,18 @@ void __p(std::set<T> a)
     {
         __p(*it);
         std::cout << ",}"[++it == a.end()];
+    }
+}
+
+template <typename T>
+void __p(std::deque<T> a)
+{
+    std::cout << "{";
+    while (!a.empty())
+    {
+        __p(a.front());
+        a.pop_front();
+        std::cout << ",}"[a.empty()];
     }
 }
 

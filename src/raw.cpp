@@ -35,7 +35,7 @@ Raw::Raw(const std::string &graph) : Graph(graph)
     std::reverse(topo_order.begin(), topo_order.end());
 
     for (int i = 0; i < nodes; i++)
-        trie[i] = std::make_unique<Trie>(i);
+        trie[i] = std::make_unique<Path_Trie<ALGO::RAW>>(i);
 }
 
 void Raw::compute_safe(int u)
@@ -59,7 +59,7 @@ void Raw::compute_safe(int u)
     else
         v_star = -1;
 
-    std::shared_ptr<Node> current_node;
+    std::shared_ptr<Node<ALGO::RAW>> current_node;
 
     for (auto &&p : adjacency_list[u])
     {
@@ -78,15 +78,15 @@ void Raw::compute_safe(int u)
             f_x += f_max_in[x] - f_in[x];
             x = k;
         }
-        leaves[v].push_back({std::move(current_node), f_x});
+        leaves[v].emplace_back(std::make_pair(current_node, f_x));
     }
 
     if (v_star != -1)
-        trie[v_star]->insert(trie[u], f_max_out_u, trie[v_star]->head);
+        trie[v_star]->merge(trie[u], f_max_out_u);
 
     for (auto &&p : leaves[u])
     {
-        std::shared_ptr<Node> x = p.first;
+        std::shared_ptr<Node<ALGO::RAW>> x = p.first;
         double f_x = p.second;
         double excess = f_x - f_out_u + f_max_out_u;
 
@@ -98,7 +98,7 @@ void Raw::compute_safe(int u)
             current_node = x;
             while (current_node->parent_node != trie[u]->head)
             {
-                path.push_back(current_node->value);
+                path.emplace_back(current_node->value);
                 current_node = current_node->parent_node;
                 if (current_node == nullptr)
                 {
@@ -108,10 +108,10 @@ void Raw::compute_safe(int u)
             }
             if ((!invalid) && (!path.empty()))
             {
-                path.push_back(current_node->value);
-                path.push_back(u);
-                raw_repr.push_back({f_x, std::vector<int>{std::make_move_iterator(std::begin(path)),
-                                                          std::make_move_iterator(std::end(path))}});
+                path.emplace_back(current_node->value);
+                path.emplace_back(u);
+                raw_repr.emplace_back(std::move(std::make_pair(f_x, std::vector<int>{std::make_move_iterator(std::begin(path)),
+                                                                                     std::make_move_iterator(std::end(path))})));
             }
         }
 
@@ -120,14 +120,14 @@ void Raw::compute_safe(int u)
             f_x = excess;
             while ((f_x <= 0) && (x->children == 0))
             {
-                std::shared_ptr<Node> y = x->parent_node;
+                std::shared_ptr<Node<ALGO::RAW>> y = x->parent_node;
                 f_x = f_x + f_in[y->value] - x->flow_to_parent;
                 x->parent_node.reset();
                 y->children--;
                 x = y;
             }
             if (x->children == 0)
-                leaves[v_star].push_back({x, f_x});
+                leaves[v_star].emplace_back(std::make_pair(x, f_x));
         }
     }
     return;
@@ -163,6 +163,6 @@ void Raw::topo_dfs(int v, std::vector<bool> &visited)
         if (!visited[u.first])
             topo_dfs(u.first, visited);
     }
-    topo_order.push_back(v);
+    topo_order.emplace_back(v);
     return;
 }

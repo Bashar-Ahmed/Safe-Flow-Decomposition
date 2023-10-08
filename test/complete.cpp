@@ -7,7 +7,9 @@
 TEST(COMPLETE, complete)
 {
 
-    freopen("../test/test.graph", "r", stdin);
+    std::ifstream input_file, truth_file;
+    input_file.open("../test/test.graph", std::ifstream::in);
+    std::cin.rdbuf(input_file.rdbuf());
 
     std::vector<std::pair<double, std::vector<int>>> truth, complete_result;
 
@@ -17,7 +19,6 @@ TEST(COMPLETE, complete)
     graph->compute_safe();
     complete_result = std::move(graph->complete_repr);
 
-    std::ifstream truth_file;
     truth_file.open("../test/test.truth", std::ifstream::in);
     std::string metadata, line, token;
     std::getline(truth_file, metadata);

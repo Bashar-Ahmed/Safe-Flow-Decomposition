@@ -23,8 +23,8 @@ Graph::Graph(const std::string &graph)
         {
             std::stringstream tokens(temp);
             int token = 0;
-            int u, v;
-            double w;
+            int u = -1, v = -1;
+            double w = -1;
             while (std::getline(tokens, temp, ' '))
             {
                 if (token == 0)
