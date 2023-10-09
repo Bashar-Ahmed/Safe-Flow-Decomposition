@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
     while (true)
     {
-        std::string graph_string = read_graph();
+        std::string graph_string = Graph::read();
         if (graph_string == "")
             break;
 

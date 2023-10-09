@@ -12,7 +12,7 @@ TEST(RAW, raw)
     std::cin.rdbuf(input_file.rdbuf());
     std::vector<std::pair<double, std::vector<int>>> truth, raw_result;
 
-    std::string graph_string = read_graph();
+    std::string graph_string = Graph::read();
     Raw *graph = new Raw(graph_string);
     for (int u : graph->topo_order)
         graph->compute_safe(u);

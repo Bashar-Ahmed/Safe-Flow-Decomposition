@@ -1,4 +1,4 @@
-#include "../include/complete.hpp"
+#include "../include/optimal.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -13,10 +13,10 @@ int main(int argc, char *argv[])
         if (graph_string == "")
             break;
 
-        Complete *graph = new Complete(graph_string);
+        Optimal *graph = new Optimal(graph_string);
 
-        graph->decompose_path();
-        graph->compute_safe();
+        for (int u : graph->topo_order)
+            graph->compute_safe(u);
 
         if (profile)
             graph->calculate_statistics();

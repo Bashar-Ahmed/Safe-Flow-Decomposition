@@ -56,6 +56,8 @@ struct Path_Trie
     {
         std::shared_ptr<Node<T>> node = std::make_shared<Node<T>>(u, flow, parent);
         parent->children++;
+        if constexpr (T == ALGO::CONCISE)
+            head->child[u] = node;
         return node;
     }
 
@@ -64,6 +66,8 @@ struct Path_Trie
         u->head->parent_node = head;
         u->head->flow_to_parent = flow;
         head->children++;
+        if constexpr (T == ALGO::CONCISE)
+            head->child[u->head->value] = u->head;
         return;
     }
 };
@@ -75,5 +79,40 @@ struct AC_Trie : public std::enable_shared_from_this<AC_Trie>
     double flow;
     std::weak_ptr<AC_Trie> fail;
     std::vector<std::pair<int, std::shared_ptr<AC_Trie>>> children;
-    void add_fail();
+
+    void add_fail()
+    {
+        std::shared_ptr<AC_Trie> shared_this = shared_from_this();
+        this->fail = shared_this;
+        std::queue<std::shared_ptr<AC_Trie>> q;
+        q.push(shared_this);
+
+        while (!q.empty())
+        {
+            auto source = q.front();
+            q.pop();
+            for (auto &&source_node : source->children)
+            {
+                auto target = source;
+                source_node.second->fail.reset();
+                while (target.get() != this)
+                {
+                    target = target->fail.lock();
+                    for (auto &&target_node : target->children)
+                    {
+                        if (source_node.first == target_node.first)
+                        {
+                            source_node.second->fail = target_node.second;
+                            target_node.second->is_fail = true;
+                            target = shared_this;
+                            break;
+                        }
+                    }
+                }
+                if (source_node.second->fail.lock().get() == nullptr)
+                    source_node.second->fail = shared_this;
+                q.push(source_node.second);
+            }
+        }
+    };
 };

@@ -13,7 +13,7 @@ TEST(COMPLETE, complete)
 
     std::vector<std::pair<double, std::vector<int>>> truth, complete_result;
 
-    std::string graph_string = read_graph();
+    std::string graph_string = Graph::read();
     Complete *graph = new Complete(graph_string);
     graph->decompose_path();
     graph->compute_safe();
