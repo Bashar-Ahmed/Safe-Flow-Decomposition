@@ -5,7 +5,7 @@
 #include "../include/graph.hpp"
 #include "../include/trie.hpp"
 
-typedef std::tuple<std::shared_ptr<Node<ALGO::CONCISE>>, int, double> index;
+typedef std::tuple<std::shared_ptr<Concise_Node>, int, double> index;
 typedef std::pair<std::list<int>, std::list<index>> path_index;
 
 struct Concise : public Graph
@@ -13,8 +13,8 @@ struct Concise : public Graph
     std::vector<double> f_in, f_out;
     std::vector<double> f_max_in, f_max_out;
     std::vector<int> v_max_in, v_max_out, topo_order;
-    std::vector<std::unique_ptr<Path_Trie<ALGO::CONCISE>>> trie;
-    std::map<std::shared_ptr<Node<ALGO::CONCISE>>, std::deque<int>> mark;
+    std::vector<std::unique_ptr<Path_Trie<Concise_Node>>> trie;
+    std::map<std::shared_ptr<Concise_Node>, std::deque<int>> mark;
     std::vector<std::list<path_index>> partial_result;
 
     std::list<path_index> concise_repr;

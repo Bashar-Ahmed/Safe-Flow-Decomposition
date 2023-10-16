@@ -1,72 +1,35 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
-#include <map>
 #include <queue>
-#include <list>
+#include "../include/node.hpp"
 
-enum class ALGO
-{
-    RAW,
-    CONCISE
-};
-
-template <ALGO T>
-struct Node
-{
-    int value, children;
-    double flow_to_parent;
-    std::shared_ptr<Node<T>> parent_node;
-
-    struct empty
-    {
-    };
-    using current_t = std::conditional_t<T == ALGO::CONCISE, std::map<int, std::shared_ptr<Node<T>>>, empty>;
-    [[no_unique_address]] current_t child;
-
-    Node(int u)
-    {
-        value = u;
-        children = 0;
-        flow_to_parent = 0.0;
-        parent_node = nullptr;
-    }
-
-    Node(int u, double flow, const std::shared_ptr<Node> &parent)
-    {
-        value = u;
-        children = 0;
-        flow_to_parent = flow;
-        parent_node = parent;
-    }
-};
-
-template <ALGO T>
+template <typename T>
+    requires std::is_same_v<T, Raw_Node> || std::is_same_v<T, Concise_Node>
 struct Path_Trie
 {
-    std::shared_ptr<Node<T>> head;
+    std::shared_ptr<T> head;
+    Path_Trie(int u) : head(std::make_shared<T>(u)) {}
 
-    Path_Trie(int u)
+    std::shared_ptr<T> insert(int u, double flow, const std::shared_ptr<T> &parent)
     {
-        head = std::make_shared<Node<T>>(u);
-    }
-
-    std::shared_ptr<Node<T>> insert(int u, double flow, const std::shared_ptr<Node<T>> &parent)
-    {
-        std::shared_ptr<Node<T>> node = std::make_shared<Node<T>>(u, flow, parent);
+        std::shared_ptr<T> node;
+        node = std::make_shared<T>(u);
+        node->flow = flow;
+        node->parent = parent;
         parent->children++;
-        if constexpr (T == ALGO::CONCISE)
+        if constexpr (std::is_same_v<T, Concise_Node>)
             head->child[u] = node;
         return node;
     }
 
     void merge(std::unique_ptr<Path_Trie<T>> &u, double flow)
     {
-        u->head->parent_node = head;
-        u->head->flow_to_parent = flow;
+
+        u->head->parent = head;
+        u->head->flow = flow;
         head->children++;
-        if constexpr (T == ALGO::CONCISE)
+        if constexpr (std::is_same_v<T, Concise_Node>)
             head->child[u->head->value] = u->head;
         return;
     }

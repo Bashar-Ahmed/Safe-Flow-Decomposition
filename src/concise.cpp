@@ -11,7 +11,6 @@ Concise::Concise(const std::string &graph) : Graph(graph)
     v_max_out.resize(nodes, -1);
     trie.resize(nodes);
     partial_result.resize(nodes);
-    // mark.resize(nodes);
 
     for (int i = 0; i < nodes; i++)
     {
@@ -46,7 +45,7 @@ Concise::Concise(const std::string &graph) : Graph(graph)
     std::reverse(topo_order.begin(), topo_order.end());
 
     for (int i = 0; i < nodes; i++)
-        trie[i] = std::make_unique<Path_Trie<ALGO::CONCISE>>(i);
+        trie[i] = std::make_unique<Path_Trie<Concise_Node>>(i);
 }
 
 void Concise::compute_safe(int u)
@@ -58,7 +57,7 @@ void Concise::compute_safe(int u)
     else
         v_star = -1;
 
-    std::shared_ptr<Node<ALGO::CONCISE>> current_node_v, current_node_u;
+    std::shared_ptr<Concise_Node> current_node_v, current_node_u;
 
     for (auto &&p : adjacency_list[u])
     {
@@ -91,8 +90,8 @@ void Concise::compute_safe(int u)
         std::list<index> I_k = p.second;
         index last = *I_k.rbegin();
         double f_x, f_i = std::get<2>(last);
-        std::shared_ptr<Node<ALGO::CONCISE>> l_i = std::get<0>(last);
-        std::shared_ptr<Node<ALGO::CONCISE>> x = l_i;
+        std::shared_ptr<Concise_Node> l_i = std::get<0>(last);
+        std::shared_ptr<Concise_Node> x = l_i;
 
         if (v_star == -1)
             f_x = -std::numeric_limits<double>::max();
@@ -103,11 +102,11 @@ void Concise::compute_safe(int u)
 
         while ((f_x <= 0) && (mark[x].empty()) && (x->value != u))
         {
-            std::shared_ptr<Node<ALGO::CONCISE>> y = x->parent_node;
+            std::shared_ptr<Concise_Node> y = x->parent;
             if (x->children <= 0)
             {
-                f_x = f_x + f_in[y->value] - x->flow_to_parent;
-                // x->parent_node.reset();
+                f_x = f_x + f_in[y->value] - x->flow;
+                // x->parent.reset();
                 y->children--;
             }
             else

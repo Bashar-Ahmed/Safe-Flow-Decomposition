@@ -3,21 +3,27 @@
 #include <iostream>
 #include <algorithm>
 #include "../include/graph.hpp"
-#include "../include/trie.hpp"
+#include "../include/node.hpp"
 
 struct Optimal : public Graph
 {
-    std::vector<double> f_in;
-    std::vector<double> f_max_in;
-    std::vector<int> v_max_in, topo_order;
-    std::vector<std::unique_ptr<Path_Trie<ALGO::RAW>>> trie;
-    std::vector<std::list<std::pair<std::shared_ptr<Node<ALGO::RAW>>, double>>> leaves;
+    std::vector<double> f_in, f_out;
+    std::vector<double> f_max_in, f_max_out;
+    std::vector<std::vector<int>> v_max_in, v_max_out;
+    std::vector<std::shared_ptr<Optimal_Node>> forest_in, forest_out;
 
-    std::vector<std::pair<double, std::vector<int>>> raw_repr;
+    std::vector<std::pair<double, std::vector<int>>> optimal_repr;
 
     Optimal(const std::string &graph);
-    void compute_safe(int u);
+    int binary_search_1(std::shared_ptr<Optimal_Node> node, double flow);
+    int binary_search_2(std::shared_ptr<Optimal_Node> node_1, std::shared_ptr<Optimal_Node> node_2);
+    void compute_non_trivial();
+    bool left_extendible(int node, double flow);
+    bool right_extendible(int node, double flow);
+    void compute_trivial();
     void print_maximal_safe_paths();
     void calculate_statistics();
-    void topo_dfs(int v, std::vector<bool> &visited);
+    void construct_forest();
+    void dfs_in(int n, int &label);
+    void dfs_out(int n, int &label);
 };

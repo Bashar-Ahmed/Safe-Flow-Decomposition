@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
 
         Optimal *graph = new Optimal(graph_string);
 
-        for (int u : graph->topo_order)
-            graph->compute_safe(u);
+        graph->compute_non_trivial();
+        graph->compute_trivial();
 
         if (profile)
             graph->calculate_statistics();

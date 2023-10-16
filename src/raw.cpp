@@ -35,7 +35,7 @@ Raw::Raw(const std::string &graph) : Graph(graph)
     std::reverse(topo_order.begin(), topo_order.end());
 
     for (int i = 0; i < nodes; i++)
-        trie[i] = std::make_unique<Path_Trie<ALGO::RAW>>(i);
+        trie[i] = std::make_unique<Path_Trie<Raw_Node>>(i);
 }
 
 void Raw::compute_safe(int u)
@@ -59,7 +59,7 @@ void Raw::compute_safe(int u)
     else
         v_star = -1;
 
-    std::shared_ptr<Node<ALGO::RAW>> current_node;
+    std::shared_ptr<Raw_Node> current_node;
 
     for (auto &&p : adjacency_list[u])
     {
@@ -86,7 +86,7 @@ void Raw::compute_safe(int u)
 
     for (auto &&p : leaves[u])
     {
-        std::shared_ptr<Node<ALGO::RAW>> x = p.first;
+        std::shared_ptr<Raw_Node> x = p.first;
         double f_x = p.second;
         double excess = f_x - f_out_u + f_max_out_u;
 
@@ -96,10 +96,10 @@ void Raw::compute_safe(int u)
             std::list<int> path;
             bool invalid = false;
             current_node = x;
-            while (current_node->parent_node != trie[u]->head)
+            while (current_node->parent != trie[u]->head)
             {
                 path.emplace_back(current_node->value);
-                current_node = current_node->parent_node;
+                current_node = current_node->parent;
                 if (current_node == nullptr)
                 {
                     invalid = true;
@@ -120,9 +120,9 @@ void Raw::compute_safe(int u)
             f_x = excess;
             while ((f_x <= 0) && (x->children == 0))
             {
-                std::shared_ptr<Node<ALGO::RAW>> y = x->parent_node;
-                f_x = f_x + f_in[y->value] - x->flow_to_parent;
-                x->parent_node.reset();
+                std::shared_ptr<Raw_Node> y = x->parent;
+                f_x = f_x + f_in[y->value] - x->flow;
+                x->parent.reset();
                 y->children--;
                 x = y;
             }
