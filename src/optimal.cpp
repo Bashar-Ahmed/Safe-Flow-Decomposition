@@ -1,5 +1,4 @@
 #include "../include/optimal.hpp"
-#include "../include/debug.hpp"
 
 Optimal::Optimal(const std::string &graph) : Graph(graph)
 {
@@ -7,8 +6,13 @@ Optimal::Optimal(const std::string &graph) : Graph(graph)
     f_out.resize(nodes, 0);
     f_max_in.resize(nodes, 0);
     f_max_out.resize(nodes, 0);
-    v_max_in.resize(nodes, {});
-    v_max_out.resize(nodes, {});
+    v_max_in.resize(nodes, -1);
+    v_max_out.resize(nodes, -1);
+    c_max_in.resize(nodes, 0);
+    c_max_out.resize(nodes, 0);
+
+    forest_in.reserve(nodes);
+    forest_out.reserve(nodes);
 
     for (int i = 0; i < nodes; i++)
     {
@@ -22,43 +26,38 @@ Optimal::Optimal(const std::string &graph) : Graph(graph)
             if (f_max_in[v] < w)
             {
                 f_max_in[v] = w;
-                v_max_in[v] = {u};
+                v_max_in[v] = u;
+                c_max_in[v] = 1;
             }
             else if (f_max_in[v] == w)
-                v_max_in[v].push_back(u);
+                c_max_in[v]++;
 
             if (f_max_out[u] < w)
             {
                 f_max_out[u] = w;
-                v_max_out[u] = {v};
+                v_max_out[u] = v;
+                c_max_out[u] = 1;
             }
             else if (f_max_out[u] == w)
-                v_max_out[u].push_back(v);
+                c_max_out[u]++;
 
             f_in[v] += w;
             f_out[u] += w;
         }
     }
 
-    for (auto &&v : v_max_in)
-        if (v.size() > 1)
-            v.clear();
-    for (auto &&v : v_max_out)
-        if (v.size() > 1)
-            v.clear();
-
     construct_forest();
 }
 
-int Optimal::binary_search_1(std::shared_ptr<Optimal_Node> node, double flow)
+int Optimal::binary_search_1(Optimal_Node *node, double flow)
 {
     int l = 0;
     int r = node->depth;
+    double loss = node->loss;
     while (l < r)
     {
-        int m = (l + r) / 2;
-        auto y = node->level_ancestor(m);
-        if (abs(node->loss - y->loss) < flow)
+        int m = (l + r) >> 1;
+        if (abs(loss - node->level_ancestor(m)->loss) < flow)
             r = m;
         else
             l = m + 1;
@@ -66,15 +65,16 @@ int Optimal::binary_search_1(std::shared_ptr<Optimal_Node> node, double flow)
     return node->level_ancestor(r)->value;
 }
 
-int Optimal::binary_search_2(std::shared_ptr<Optimal_Node> node_1, std::shared_ptr<Optimal_Node> node_2)
+int Optimal::binary_search_2(Optimal_Node *node_1, Optimal_Node *node_2)
 {
     int l = node_2->depth + 1;
     int r = node_1->depth;
+    double loss = node_2->loss;
     while (l < r)
     {
-        int m = (l + r + 1) / 2;
+        int m = (l + r + 1) >> 1;
         auto z = node_1->level_ancestor(m);
-        if (z->flow > node_2->loss - forest_in[z->parent]->loss)
+        if (z->flow > loss - forest_in[z->parent]->loss)
             l = m;
         else
             r = m - 1;
@@ -93,22 +93,25 @@ void Optimal::compute_non_trivial()
                 continue;
 
             double excess_flow = p.second;
+            double i_loss = forest_in[i]->loss;
+            double j_loss = forest_out[j]->loss;
 
             while (excess_flow > 0)
             {
-                int l = binary_search_1(forest_in[i], excess_flow);
-                double rest_flow = excess_flow - abs(forest_in[i]->loss - forest_in[l]->loss);
-                int r = binary_search_1(forest_out[j], rest_flow);
+                int l = binary_search_1(forest_in[i].get(), excess_flow);
+                double in_loss = forest_in[l]->loss - i_loss;
+                double rest_flow = excess_flow - abs(in_loss);
+                int r = binary_search_1(forest_out[j].get(), rest_flow);
                 if (l != i || r != j)
                 {
-                    double flow = p.second - (forest_in[l]->loss - forest_in[i]->loss) - (forest_out[r]->loss - forest_out[j]->loss);
+                    double flow = p.second - in_loss - (forest_out[r]->loss - j_loss);
                     optimal_repr.push_back({flow, {l, i, j, r}});
                     break;
                 }
                 int next = forest_out[r]->parent;
                 if (forest_out[next]->parent == next)
                     break;
-                excess_flow = p.second - abs(forest_out[next]->loss - forest_out[j]->loss);
+                excess_flow = p.second - abs(forest_out[next]->loss - j_loss);
             }
         }
     }
@@ -134,35 +137,43 @@ void Optimal::compute_trivial()
     for (int i = 0; i < nodes; i++)
     {
         auto x = forest_in[i];
+        int x_value = x->value;
+        int x_parent = x->parent;
+
         if (x->children.size() > 0)
             continue;
 
         auto r = x->level_ancestor(0);
-        while (x->parent != x->value)
+        int r_value = r->value;
+        double r_loss = r->loss;
+
+        while (x_parent != x_value)
         {
-            if (visited[x->value])
+            if (visited[x_value])
                 break;
-            visited[x->value] = true;
+            visited[x_value] = true;
             double flow = x->flow;
-            double loss = r->loss - forest_in[x->parent]->loss;
+            double loss = r_loss - forest_in[x_parent]->loss;
             if (loss < flow)
             {
-                if ((!right_extendible(x->value, flow - loss)) && (!left_extendible(r->value, flow - loss)))
+                if ((!right_extendible(x_value, flow - loss)) && (!left_extendible(r_value, flow - loss)))
                 {
-                    if (r->value != x->parent)
-                        optimal_repr.push_back({flow - loss, {r->value, x->parent, x->value}});
+                    if (r_value != x_parent)
+                        optimal_repr.push_back({flow - loss, {r_value, x_parent, x_value}});
                 }
                 break;
             }
-            auto y = binary_search_1(forest_in[x->parent], flow);
-            loss = forest_in[y]->loss - forest_in[x->parent]->loss;
-            if (!right_extendible(x->value, flow - loss))
+            int y = binary_search_1(forest_in[x_parent].get(), flow);
+            loss = forest_in[y]->loss - forest_in[x_parent]->loss;
+            if (!right_extendible(x_value, flow - loss))
             {
-                if (y != x->parent)
-                    optimal_repr.push_back({flow - loss, {y, x->parent, x->value}});
+                if (y != x_parent)
+                    optimal_repr.push_back({flow - loss, {y, x_parent, x_value}});
             }
             y = forest_in[y]->parent;
-            x = forest_in[binary_search_2(x, forest_in[y])];
+            x = forest_in[binary_search_2(x.get(), forest_in[y].get())];
+            x_value = x->value;
+            x_parent = x->parent;
         }
     }
 }
@@ -199,17 +210,17 @@ void Optimal::construct_forest()
 
     for (int i = 0; i < nodes; i++)
     {
-        if (!v_max_in[i].empty())
+        if (c_max_in[i] == 1)
         {
-            forest_in[v_max_in[i][0]]->children.push_back(i);
-            forest_in[i]->parent = v_max_in[i][0];
+            forest_in[v_max_in[i]]->children.emplace_back(i);
+            forest_in[i]->parent = v_max_in[i];
             forest_in[i]->flow = f_max_in[i];
         }
-        if (!v_max_out[i].empty())
+        if (c_max_out[i] == 1)
         {
-            forest_out[v_max_out[i][0]]->children.push_back(i);
-            forest_out[i]->parent = v_max_out[i][0];
-            forest_out[i]->flow = f_max_in[i];
+            forest_out[v_max_out[i]]->children.emplace_back(i);
+            forest_out[i]->parent = v_max_out[i];
+            forest_out[i]->flow = f_max_out[i];
         }
     }
 
@@ -217,11 +228,7 @@ void Optimal::construct_forest()
     {
         if (forest_in[i]->parent == i)
         {
-            forest_in[i]->loss = 0;
-            forest_in[i]->depth = 0;
-            forest_in[i]->depth_map = std::make_shared<std::vector<std::vector<int>>>();
-            forest_in[i]->label_map = std::make_shared<std::vector<std::shared_ptr<Optimal_Node>>>();
-
+            forest_in[i]->init_root();
             int label = 0;
             dfs_in(i, label);
 
@@ -230,11 +237,7 @@ void Optimal::construct_forest()
         }
         if (forest_out[i]->parent == i)
         {
-            forest_out[i]->loss = 0;
-            forest_out[i]->depth = 0;
-            forest_out[i]->depth_map = std::make_shared<std::vector<std::vector<int>>>();
-            forest_out[i]->label_map = std::make_shared<std::vector<std::shared_ptr<Optimal_Node>>>();
-
+            forest_out[i]->init_root();
             int label = 0;
             dfs_out(i, label);
 
@@ -246,38 +249,24 @@ void Optimal::construct_forest()
 
 void Optimal::dfs_in(int n, int &label)
 {
-    if (int(forest_in[n]->depth_map->size()) == forest_in[n]->depth)
-        forest_in[n]->depth_map->push_back({});
-    forest_in[n]->depth_map->operator[](forest_in[n]->depth).push_back(label);
-    forest_in[n]->label_map->push_back(forest_in[n]);
-    forest_in[n]->label = label;
+    forest_in[n]->init_node(label);
     label++;
 
     for (auto &&child : forest_in[n]->children)
     {
-        forest_in[child]->loss = forest_in[n]->loss + f_max_in[child] - f_in[child];
-        forest_in[child]->depth = forest_in[n]->depth + 1;
-        forest_in[child]->depth_map = forest_in[n]->depth_map;
-        forest_in[child]->label_map = forest_in[n]->label_map;
+        forest_in[child]->update_node(forest_in[n], f_max_in[child] - f_in[child]);
         dfs_in(child, label);
     }
 }
 
 void Optimal::dfs_out(int n, int &label)
 {
-    if (int(forest_out[n]->depth_map->size()) == forest_out[n]->depth)
-        forest_out[n]->depth_map->push_back({});
-    forest_out[n]->depth_map->operator[](forest_out[n]->depth).push_back(label);
-    forest_out[n]->label_map->push_back(forest_out[n]);
-    forest_out[n]->label = label;
+    forest_out[n]->init_node(label);
     label++;
 
     for (auto &&child : forest_out[n]->children)
     {
-        forest_out[child]->loss = forest_out[n]->loss + f_max_out[child] - f_out[child];
-        forest_out[child]->depth = forest_out[n]->depth + 1;
-        forest_out[child]->depth_map = forest_out[n]->depth_map;
-        forest_out[child]->label_map = forest_out[n]->label_map;
+        forest_out[child]->update_node(forest_out[n], f_max_out[child] - f_out[child]);
         dfs_out(child, label);
     }
 }
