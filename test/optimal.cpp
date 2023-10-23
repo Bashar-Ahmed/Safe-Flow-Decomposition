@@ -18,13 +18,26 @@ TEST(OPTIMAL, optimal)
     graph->compute_trivial();
 
     optimal_result = std::move(graph->optimal_repr);
+
+    for (auto &&path : graph->optimal_repr_l)
+    {
+        path.second.insert(path.second.begin(), path.second[0]);
+        optimal_result.push_back(std::move(path));
+    }
+
+    for (auto &&path : graph->optimal_repr_r)
+    {
+        path.second.push_back(path.second[2]);
+        optimal_result.push_back(std::move(path));
+    }
+
     for (auto &&path : optimal_result)
     {
         std::vector<int> complete_path;
         int l = path.second[0];
         int i = path.second[1];
         int j = path.second[2];
-        int r = int(path.second.size()) == 4 ? path.second[3] : j;
+        int r = path.second[3];
 
         complete_path.push_back(i);
         while (i != l)

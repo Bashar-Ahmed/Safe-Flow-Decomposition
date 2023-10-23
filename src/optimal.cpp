@@ -105,7 +105,12 @@ void Optimal::compute_non_trivial()
                 if (l != i || r != j)
                 {
                     double flow = p.second - in_loss - (forest_out[r]->loss - j_loss);
-                    optimal_repr.push_back({flow, {l, i, j, r}});
+                    if (l == i)
+                        optimal_repr_l.push_back({flow, {i, j, r}});
+                    else if (r == j)
+                        optimal_repr_r.push_back({flow, {l, i, j}});
+                    else
+                        optimal_repr.push_back({flow, {l, i, j, r}});
                     break;
                 }
                 int next = forest_out[r]->parent;
@@ -159,7 +164,7 @@ void Optimal::compute_trivial()
                 if ((!right_extendible(x_value, flow - loss)) && (!left_extendible(r_value, flow - loss)))
                 {
                     if (r_value != x_parent)
-                        optimal_repr.push_back({flow - loss, {r_value, x_parent, x_value}});
+                        optimal_repr_r.push_back({flow - loss, {r_value, x_parent, x_value}});
                 }
                 break;
             }
@@ -168,7 +173,7 @@ void Optimal::compute_trivial()
             if (!right_extendible(x_value, flow - loss))
             {
                 if (y != x_parent)
-                    optimal_repr.push_back({flow - loss, {y, x_parent, x_value}});
+                    optimal_repr_r.push_back({flow - loss, {y, x_parent, x_value}});
             }
             y = forest_in[y]->parent;
             x = forest_in[binary_search_2(x.get(), forest_in[y].get())];
@@ -188,6 +193,20 @@ void Optimal::print_maximal_safe_paths()
             std::cout << value << " ";
         std::cout << "\n";
     }
+    for (auto &&path : optimal_repr_l)
+    {
+        std::cout << path.first << " ";
+        for (auto &&value : path.second)
+            std::cout << value << " ";
+        std::cout << "\n";
+    }
+    for (auto &&path : optimal_repr_r)
+    {
+        std::cout << path.first << " ";
+        for (auto &&value : path.second)
+            std::cout << value << " ";
+        std::cout << "\n";
+    }
     return;
 }
 
@@ -195,8 +214,9 @@ void Optimal::calculate_statistics()
 {
     total_nodes += nodes;
     total_edges += edges;
-    for (auto &&path : optimal_repr)
-        length += path.second.size() + 1;
+    length += 5 * optimal_repr.size();
+    length += 4 * optimal_repr_l.size();
+    length += 4 * optimal_repr_r.size();
     return;
 }
 
@@ -228,7 +248,7 @@ void Optimal::construct_forest()
     {
         if (forest_in[i]->parent == i)
         {
-            forest_in[i]->init_root();
+            forest_in[i]->init_root(nodes);
             int label = 0;
             dfs_in(i, label);
 
@@ -237,7 +257,7 @@ void Optimal::construct_forest()
         }
         if (forest_out[i]->parent == i)
         {
-            forest_out[i]->init_root();
+            forest_out[i]->init_root(nodes);
             int label = 0;
             dfs_out(i, label);
 
@@ -254,7 +274,7 @@ void Optimal::dfs_in(int n, int &label)
 
     for (auto &&child : forest_in[n]->children)
     {
-        forest_in[child]->update_node(forest_in[n], f_max_in[child] - f_in[child]);
+        forest_in[child]->update_node(forest_in[n].get(), f_max_in[child] - f_in[child]);
         dfs_in(child, label);
     }
 }
@@ -266,7 +286,7 @@ void Optimal::dfs_out(int n, int &label)
 
     for (auto &&child : forest_out[n]->children)
     {
-        forest_out[child]->update_node(forest_out[n], f_max_out[child] - f_out[child]);
+        forest_out[child]->update_node(forest_out[n].get(), f_max_out[child] - f_out[child]);
         dfs_out(child, label);
     }
 }

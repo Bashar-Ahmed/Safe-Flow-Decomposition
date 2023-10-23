@@ -11,7 +11,7 @@ struct Optimal : public Graph
     std::vector<int> v_max_in, v_max_out, c_max_in, c_max_out;
     std::vector<std::shared_ptr<Optimal_Node>> forest_in, forest_out;
 
-    std::vector<std::pair<double, std::vector<int>>> optimal_repr;
+    std::vector<std::pair<double, std::vector<int>>> optimal_repr, optimal_repr_l, optimal_repr_r;
 
     Optimal(const std::string &graph);
     int binary_search_1(Optimal_Node *node, double flow);

@@ -31,7 +31,7 @@ struct Optimal_Node
     std::vector<std::vector<int>> *fast_depth_map;
     Optimal_Node(int u) : value(u), parent(u), flow(0.0) {}
 
-    inline void init_root()
+    void init_root(int nodes)
     {
         loss = 0;
         depth = 0;
@@ -41,7 +41,7 @@ struct Optimal_Node
         fast_label_map = label_map.get();
     }
 
-    inline void init_node(int label)
+    void init_node(int label)
     {
         if (int(fast_depth_map->size()) == depth)
             fast_depth_map->emplace_back(std::move(std::vector<int>()));
@@ -50,7 +50,7 @@ struct Optimal_Node
         this->label = label;
     }
 
-    inline void update_node(std::shared_ptr<Optimal_Node> &node, double flow)
+    void update_node(Optimal_Node *node, double flow)
     {
         loss = node->loss + flow;
         depth = node->depth + 1;
@@ -60,26 +60,22 @@ struct Optimal_Node
         fast_label_map = node->fast_label_map;
     }
 
-    inline int binary_search(std::vector<int> &nodes)
+    int binary_search(std::vector<int> &nodes)
     {
         int l = 0;
         int r = int(nodes.size()) - 1;
-        int ans = l;
-        while (l <= r)
+        while (l < r)
         {
-            int m = (l + r) >> 1;
+            int m = (l + r + 1) >> 1;
             if (nodes[m] > label)
                 r = m - 1;
             else
-            {
-                ans = m;
-                l = m + 1;
-            }
+                l = m;
         }
-        return nodes[ans];
+        return nodes[l];
     }
 
-    inline Optimal_Node *level_ancestor(int depth)
+    Optimal_Node *level_ancestor(int depth)
     {
         auto &nodes = fast_depth_map->operator[](depth);
         int label = binary_search(nodes);
