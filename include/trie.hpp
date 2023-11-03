@@ -18,8 +18,6 @@ struct Path_Trie
         node->flow = flow;
         node->parent = parent;
         parent->children++;
-        if constexpr (std::is_same_v<T, Concise_Node>)
-            head->child[u] = node;
         return node;
     }
 
@@ -29,8 +27,6 @@ struct Path_Trie
         u->head->parent = head;
         u->head->flow = flow;
         head->children++;
-        if constexpr (std::is_same_v<T, Concise_Node>)
-            head->child[u->head->value] = u->head;
         return;
     }
 };

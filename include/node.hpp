@@ -16,7 +16,7 @@ struct Concise_Node
     int value, children;
     double flow;
     std::shared_ptr<Concise_Node> parent;
-    std::map<int, std::shared_ptr<Concise_Node>> child;
+    std::shared_ptr<Concise_Node> v_max_in;
     Concise_Node(int u) : value(u), children(0), flow(0.0), parent(nullptr) {}
 };
 
@@ -31,7 +31,7 @@ struct Optimal_Node
     std::vector<std::vector<int>> *fast_depth_map;
     Optimal_Node(int u) : value(u), parent(u), flow(0.0) {}
 
-    void init_root(int nodes)
+    void init_root()
     {
         loss = 0;
         depth = 0;

@@ -53,11 +53,9 @@ void Raw::compute_safe(int u)
         }
     }
 
-    int v_star;
+    int v_star = -1;
     if ((f_in[u] != 0) && (f_out_u != 0))
         v_star = v_max_out_u;
-    else
-        v_star = -1;
 
     std::shared_ptr<Raw_Node> current_node;
 
