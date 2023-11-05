@@ -3,16 +3,11 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <stack>
 #include <queue>
 #include <list>
-#include <set>
-#include <map>
 
 template <typename Node>
 void __p(std::shared_ptr<Node> a);
-template <typename Node>
-void __p(std::weak_ptr<Node> a);
 template <typename T>
 void __p(T a);
 template <typename T, typename F>
@@ -24,17 +19,9 @@ void __p(std::list<T> a);
 template <typename T>
 void __p(std::vector<T> a);
 template <typename T>
-void __p(std::set<T> a);
-template <typename T>
-void __p(std::multiset<T> a);
-template <typename T, typename F>
-void __p(std::map<T, F> a);
-template <typename T>
 void __p(std::deque<T> a);
 template <typename T>
 void __p(std::queue<T> a);
-template <typename T>
-void __p(std::stack<T> a);
 
 template <typename Node>
 void __p(std::shared_ptr<Node> a)
@@ -45,12 +32,6 @@ void __p(std::shared_ptr<Node> a)
     __p(a.get());
     std::cout << "}";
 }
-
-// template <typename Node>
-// void __p(std::weak_ptr<Node> a)
-// {
-//     __p(a);
-// }
 
 template <typename T>
 void __p(T a)
@@ -99,17 +80,6 @@ void __p(std::vector<T> a)
 }
 
 template <typename T>
-void __p(std::set<T> a)
-{
-    std::cout << "{";
-    for (auto it = a.begin(); it != a.end();)
-    {
-        __p(*it);
-        std::cout << ",}"[++it == a.end()];
-    }
-}
-
-template <typename T>
 void __p(std::deque<T> a)
 {
     std::cout << "{";
@@ -131,43 +101,6 @@ void __p(std::queue<T> a)
         a.pop();
         std::cout << ",}"[a.empty()];
     }
-}
-
-template <typename T>
-void __p(std::stack<T> a)
-{
-    std::cout << "{";
-    while (!a.empty())
-    {
-        __p(a.top());
-        a.pop();
-        std::cout << ",}"[a.empty()];
-    }
-}
-
-template <typename T>
-void __p(std::multiset<T> a)
-{
-    std::cout << "{";
-    for (auto it = a.begin(); it != a.end();)
-    {
-        __p(*it);
-        std::cout << ",}"[++it == a.end()];
-    }
-}
-
-template <typename T, typename F>
-void __p(std::map<T, F> a)
-{
-    std::cout << "{\n";
-    for (auto it = a.begin(); it != a.end(); ++it)
-    {
-        __p(it->first);
-        std::cout << ": ";
-        __p(it->second);
-        std::cout << "\n";
-    }
-    std::cout << "}\n";
 }
 
 template <typename T, typename... Arg>

@@ -1,5 +1,4 @@
 #include "../include/concise.hpp"
-#include "../include/debug.hpp"
 
 Concise::Concise(const std::string &graph) : Graph(graph)
 {
@@ -172,24 +171,26 @@ void Concise::compute_safe(int u)
             auto it = p_k.begin();
             auto itl = I_k.begin();
             auto itr = I_k.begin();
+            auto I_k_end = I_k.end();
+            auto p_k_end = p_k.end();
             int current = 0;
             std::list<int> p;
             std::list<cut> I;
 
-            while (it != p_k.end())
+            while (it != p_k_end)
             {
-                if (itl != I_k.end() && *it == std::get<0>(*itl)->value)
+                if (itl != I_k_end && *it == std::get<0>(*itl)->value)
                 {
                     if (*++it != std::get<1>(*itl))
                     {
-                        I.push_back(*itl);
+                        I.emplace_back(*itl);
                         current++;
                     }
                     it--;
                     itl++;
                 }
 
-                if (itr != I_k.end() && *it == std::get<1>(*itr))
+                if (itr != I_k_end && *it == std::get<1>(*itr))
                 {
                     if (*--it != std::get<0>(*itr)->value)
                         current--;
@@ -197,7 +198,7 @@ void Concise::compute_safe(int u)
                     itr++;
                 }
 
-                p.push_back(*it++);
+                p.emplace_back(*it++);
 
                 if (current == 0)
                 {
