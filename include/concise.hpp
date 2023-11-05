@@ -6,13 +6,13 @@
 #include "../include/trie.hpp"
 
 typedef std::tuple<std::shared_ptr<Concise_Node>, int, double> cut;
-typedef std::pair<std::vector<int>, std::vector<cut>> path;
+typedef std::pair<std::list<int>, std::list<cut>> path;
 
 struct Concise : public Graph
 {
-    std::vector<double> f_in, f_out;
-    std::vector<double> f_max_in, f_max_out;
-    std::vector<int> v_max_in, v_max_out, topo_order;
+    std::vector<double> f_in;
+    std::vector<double> f_max_in;
+    std::vector<int> v_max_in, topo_order;
     std::vector<std::unique_ptr<Path_Trie<Concise_Node>>> trie;
     std::vector<std::vector<int>> mark;
     std::vector<std::vector<path>> partial_result;

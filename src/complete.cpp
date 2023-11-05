@@ -197,7 +197,7 @@ void Complete::compress_path(double flow, std::deque<int> &route, std::shared_pt
 
 void Complete::print_maximal_safe_paths()
 {
-	std::cout << metadata << "\n";
+	std::cout << metadata << "\n\n";
 	for (auto &&path : complete_repr)
 	{
 		std::cout << path.first << " ";

@@ -19,18 +19,18 @@ TEST(CONCISE, concise)
 
     for (auto &&path_instance : graph->concise_repr)
     {
-        int l = 0;
+        auto it = path_instance.first.begin();
         for (auto &&cut_instance : path_instance.second)
         {
             int u = std::get<0>(cut_instance)->value;
             int v = std::get<1>(cut_instance);
             double flow = std::get<2>(cut_instance);
-            while (path_instance.first[l] != u)
-                l++;
+            while (*it != u)
+                it++;
             std::vector<int> path;
-            int k = l;
-            while (path_instance.first[k] != v)
-                path.push_back(path_instance.first[k++]);
+            auto p = it;
+            while (*p != v)
+                path.push_back(*p++);
             path.push_back(v);
             concise_result.emplace_back(std::make_pair(flow, std::move(path)));
         }

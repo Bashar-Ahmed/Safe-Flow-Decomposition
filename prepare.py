@@ -34,21 +34,43 @@ def is_funnel(graph):
         return False
     return True
 
+dataset = "catfish"
 
-files = subprocess.getoutput("find . -type f -wholename './data/d*.graph'")
+files = subprocess.getoutput(f"find ./data/{dataset} -type f -wholename '*.graph'")
 files = [file_name for file_name in files.split("\n") if len(file_name) > 0]
 
 for file_name in files:
     print(file_name)
     with open(file_name, "r") as f:
         graphs = ["#" + graph for graph in f.read().split("#") if len(graph) > 0]
+        trivial_file_name = file_name.replace("data", "data/preprocessed/multiple/trivial")
+        non_trivial_file_name = file_name.replace("data", "data/preprocessed/multiple/nontrivial")
+        os.makedirs(os.path.dirname(trivial_file_name), exist_ok=True)
+        os.makedirs(os.path.dirname(non_trivial_file_name), exist_ok=True)
+        trivial=""
+        non_trivial=""
+
         file_name = file_name.replace(".graph", "")
-        new_folder_name = file_name.replace("data", "data/final")
-        os.makedirs(new_folder_name, exist_ok=True)
+        trivial_folder_name = file_name.replace("data", "data/preprocessed/single/trivial")
+        non_trivial_folder_name = file_name.replace("data", "data/preprocessed/single/nontrivial")
+        os.makedirs(trivial_folder_name, exist_ok=True)
+        os.makedirs(non_trivial_folder_name, exist_ok=True)
 
         for i, graph in enumerate(graphs):
-            new_file_name = new_folder_name + f"/{i}.graph"
+            trivial_graph_name = trivial_folder_name + f"/{i}.graph"
+            non_trivial_graph_name = non_trivial_folder_name + f"/{i}.graph"
+
             if is_funnel(graph):
+                trivial+=graph
+                with open(trivial_graph_name,"w") as g:
+                    g.write(graph)
                 continue
-            with open(new_file_name, "w") as g:
+
+            non_trivial+=graph
+            with open(non_trivial_graph_name,"w") as g:
                 g.write(graph)
+
+        with open(trivial_file_name,"w") as g:
+            g.write(trivial)
+        with open(non_trivial_file_name,"w") as g:
+            g.write(non_trivial)               

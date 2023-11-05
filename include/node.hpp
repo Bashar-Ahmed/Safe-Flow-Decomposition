@@ -8,7 +8,7 @@ struct Raw_Node
     int value, children;
     double flow;
     std::shared_ptr<Raw_Node> parent;
-    Raw_Node(int u) : value(u), children(0), flow(0.0), parent(nullptr) {}
+    Raw_Node(int u) : value(u), children(0), flow(0.0) {}
 };
 
 struct Concise_Node
@@ -17,7 +17,7 @@ struct Concise_Node
     double flow;
     std::shared_ptr<Concise_Node> parent;
     std::shared_ptr<Concise_Node> v_max_in;
-    Concise_Node(int u) : value(u), children(0), flow(0.0), parent(nullptr) {}
+    Concise_Node(int u) : value(u), children(0), flow(0.0) {}
 };
 
 struct Optimal_Node
