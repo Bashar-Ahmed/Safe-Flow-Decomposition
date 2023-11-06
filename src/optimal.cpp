@@ -106,11 +106,11 @@ void Optimal::compute_non_trivial()
                 {
                     double flow = p.second - in_loss - (forest_out[r]->loss - j_loss);
                     if (l == i)
-                        optimal_repr_l.emplace_back(std::make_pair(flow, std::vector<int>{i, j, r}));
+                        optimal_repr_l.emplace_back(flow, std::vector<int>{i, j, r});
                     else if (r == j)
-                        optimal_repr_r.emplace_back(std::make_pair(flow, std::vector<int>{l, i, j}));
+                        optimal_repr_r.emplace_back(flow, std::vector<int>{l, i, j});
                     else
-                        optimal_repr.emplace_back(std::make_pair(flow, std::vector<int>{l, i, j, r}));
+                        optimal_repr.emplace_back(flow, std::vector<int>{l, i, j, r});
                     break;
                 }
                 int next = forest_out[r]->parent;
@@ -164,7 +164,7 @@ void Optimal::compute_trivial()
                 if ((!right_extendible(x_value, flow - loss)) && (!left_extendible(r_value, flow - loss)))
                 {
                     if (r_value != x_parent)
-                        optimal_repr_r.emplace_back(std::make_pair(flow - loss, std::vector<int>{r_value, x_parent, x_value}));
+                        optimal_repr_r.emplace_back(flow - loss, std::vector<int>{r_value, x_parent, x_value});
                 }
                 break;
             }
@@ -173,7 +173,7 @@ void Optimal::compute_trivial()
             if (!right_extendible(x_value, flow - loss))
             {
                 if (y != x_parent)
-                    optimal_repr_r.emplace_back(std::make_pair(flow - loss, std::vector<int>{y, x_parent, x_value}));
+                    optimal_repr_r.emplace_back(flow - loss, std::vector<int>{y, x_parent, x_value});
             }
             y = forest_in[y]->parent;
             x = forest_in[binary_search_2(x.get(), forest_in[y].get())];
@@ -226,8 +226,8 @@ void Optimal::construct_forest()
 {
     for (int i = 0; i < nodes; i++)
     {
-        forest_in.emplace_back(std::move(std::make_shared<Optimal_Node>(i)));
-        forest_out.emplace_back(std::move(std::make_shared<Optimal_Node>(i)));
+        forest_in.emplace_back(std::make_shared<Optimal_Node>(i));
+        forest_out.emplace_back(std::make_shared<Optimal_Node>(i));
     }
 
     for (int i = 0; i < nodes; i++)

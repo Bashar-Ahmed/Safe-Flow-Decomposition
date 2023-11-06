@@ -22,7 +22,7 @@ TEST(CONCISE, concise)
         auto it = path_instance.first.begin();
         for (auto &&cut_instance : path_instance.second)
         {
-            int u = std::get<0>(cut_instance)->value;
+            int u = std::get<0>(cut_instance);
             int v = std::get<1>(cut_instance);
             double flow = std::get<2>(cut_instance);
             while (*it != u)

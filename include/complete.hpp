@@ -15,10 +15,10 @@ struct Complete : public Graph
     std::vector<std::pair<double, std::vector<int>>> complete_repr;
 
     Complete(const std::string &graph);
-    void insert(std::shared_ptr<AC_Trie> root, std::vector<int> &str);
+    void insert(std::shared_ptr<AC_Trie> &root, std::vector<int> &str);
     void decompose_path();
     void compute_safe();
-    void compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> root);
+    void compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> &root);
     void print_maximal_safe_paths();
     void calculate_statistics();
 };

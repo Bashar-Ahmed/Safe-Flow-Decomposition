@@ -5,8 +5,10 @@
 #include "../include/graph.hpp"
 #include "../include/trie.hpp"
 
-typedef std::tuple<std::shared_ptr<Concise_Node>, int, double> cut;
-typedef std::pair<std::list<int>, std::list<cut>> path;
+typedef std::tuple<std::shared_ptr<Concise_Node>, int, double> route;
+typedef std::tuple<int, int, double> cut;
+template <typename T>
+using path = std::pair<std::vector<int>, std::vector<T>>;
 
 struct Concise : public Graph
 {
@@ -15,9 +17,9 @@ struct Concise : public Graph
     std::vector<int> v_max_in, topo_order;
     std::vector<std::unique_ptr<Path_Trie<Concise_Node>>> trie;
     std::vector<std::vector<int>> mark;
-    std::vector<std::vector<path>> partial_result;
+    std::vector<std::vector<path<route>>> partial_result;
 
-    std::vector<path> concise_repr;
+    std::vector<path<cut>> concise_repr;
 
     Concise(const std::string &graph);
     void compute_safe(int u);

@@ -39,7 +39,7 @@ void Complete::decompose_path()
 					while (true)
 					{
 
-						route.push_back(current_edge);
+						route.emplace_back(current_edge);
 						auto current_edge_value = *current_edge;
 						flow.second = std::min(flow.second, current_edge_value.second);
 
@@ -54,7 +54,7 @@ void Complete::decompose_path()
 
 					for (auto &&edge : route)
 						edge->second -= flow.second;
-					path.push_back({std::move(route), flow});
+					path.emplace_back(std::move(route), flow);
 				}
 			}
 		}
@@ -66,20 +66,20 @@ void Complete::decompose_path()
 	return;
 }
 
-void Complete::insert(std::shared_ptr<AC_Trie> root, std::vector<int> &str)
+void Complete::insert(std::shared_ptr<AC_Trie> &root, std::vector<int> &str)
 {
 
 	if (root->children.empty())
 	{
 		if (root->is_fail)
 			return;
-		complete_repr.push_back({root->flow, str});
+		complete_repr.emplace_back(root->flow, str);
 	}
 	else
 	{
 		for (auto &&node : root->children)
 		{
-			str.push_back(node.first);
+			str.emplace_back(node.first);
 			insert(node.second, str);
 			str.pop_back();
 		}
@@ -103,8 +103,8 @@ void Complete::compute_safe()
 		int to_node = left_value.first;
 		double flow = left_value.second;
 
-		route.push_back(from_node);
-		route.push_back(to_node);
+		route.emplace_back(from_node);
+		route.emplace_back(to_node);
 		right_iter++;
 		right_value = **right_iter;
 
@@ -117,7 +117,7 @@ void Complete::compute_safe()
 				{
 					flow -= f_out[to_node] - right_value.second;
 					to_node = right_value.first;
-					route.push_back(to_node);
+					route.emplace_back(to_node);
 					right_iter++;
 					if (right_iter != path_end)
 						right_value = **right_iter;
@@ -133,7 +133,7 @@ void Complete::compute_safe()
 			{
 				flow -= f_out[to_node] - right_value.second;
 				to_node = right_value.first;
-				route.push_back(to_node);
+				route.emplace_back(to_node);
 				right_iter++;
 				if (right_iter != path_end)
 					right_value = **right_iter;
@@ -164,7 +164,7 @@ void Complete::compute_safe()
 	return;
 }
 
-void Complete::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> root)
+void Complete::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> &root)
 {
 
 	auto current_node = root;
@@ -187,7 +187,7 @@ void Complete::compress_path(double flow, std::deque<int> &route, std::shared_pt
 			std::shared_ptr<AC_Trie> trie = std::make_shared<AC_Trie>();
 			trie->value = path_node;
 			trie->is_fail = false;
-			current_node->children.push_back({path_node, trie});
+			current_node->children.emplace_back(path_node, std::move(trie));
 			current_node = current_node->children.back().second;
 		}
 	}

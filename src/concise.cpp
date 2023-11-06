@@ -11,9 +11,6 @@ Concise::Concise(const std::string &graph) : Graph(graph)
 
     for (int i = 0; i < nodes; i++)
     {
-        mark[i].reserve(100);
-        partial_result[i].reserve(100);
-
         for (auto &&edge : adjacency_list[i])
         {
 
@@ -62,7 +59,6 @@ void Concise::compute_safe(int u)
         v_star = v_max_out_u;
 
     std::vector<int> M;
-    M.reserve(100);
 
     for (auto &&p : adjacency_list[u])
     {
@@ -71,24 +67,26 @@ void Concise::compute_safe(int u)
             continue;
         double f_x = p.second;
 
-        std::shared_ptr<Concise_Node> current_node_v, current_node_u;
-        current_node_u = trie[u]->head;
-        current_node_v = trie[v]->insert(u, f_x, trie[v]->head);
+        std::shared_ptr<Concise_Node> current_v, current_u;
+        current_u = trie[u]->head;
+        int current_u_value = u;
+        current_v = trie[v]->insert(u, f_x, trie[v]->head);
         if (v_max_in[v] == u)
-            trie[v]->head->v_max_in = current_node_v;
+            trie[v]->head->v_max_in = current_v;
 
-        while ((current_node_u->children > 0) && (f_x - f_in[current_node_u->value] + f_max_in[current_node_u->value] > 0))
+        while ((current_u->children > 0) && (f_x - f_in[current_u_value] + f_max_in[current_u_value] > 0))
         {
-            int k = v_max_in[current_node_u->value];
-            current_node_v = trie[v]->insert(k, f_max_in[current_node_u->value], current_node_v);
-            current_node_v->parent->v_max_in = current_node_v;
-            f_x += f_max_in[current_node_u->value] - f_in[current_node_u->value];
-            current_node_u = current_node_u->v_max_in;
+            int k = v_max_in[current_u_value];
+            current_v = trie[v]->insert(k, f_max_in[current_u_value], current_v);
+            current_v->parent->v_max_in = current_v;
+            f_x += f_max_in[current_u_value] - f_in[current_u_value];
+            current_u = current_u->v_max_in;
+            current_u_value = k;
         }
 
-        mark[current_node_v->value].emplace_back(v);
-        M.emplace_back(current_node_v->value);
-        partial_result[v].emplace_back(std::list<int>(), std::move(std::list<cut>(1, std::make_tuple(std::move(current_node_v), v, f_x))));
+        mark[current_v->value].emplace_back(v);
+        M.emplace_back(current_v->value);
+        partial_result[v].emplace_back(std::vector<int>(), std::move(std::vector<route>(1, std::make_tuple(std::move(current_v), v, f_x))));
     }
 
     if (v_star != -1)
@@ -101,9 +99,9 @@ void Concise::compute_safe(int u)
     for (auto &&p : partial_result[u])
     {
 
-        std::list<int> &p_k = p.first;
-        std::list<cut> &I_k = p.second;
-        cut &last = I_k.back();
+        std::vector<int> &p_k = p.first;
+        std::vector<route> &I_k = p.second;
+        route &last = I_k.back();
         double f_x, f_i = std::get<2>(last);
         std::shared_ptr<Concise_Node> &l_i = std::get<0>(last);
         std::shared_ptr<Concise_Node> x = l_i;
@@ -113,7 +111,7 @@ void Concise::compute_safe(int u)
         else
             f_x = f_i - f_out_u + f_max_out_u;
 
-        std::list<int> path;
+        std::vector<int> path;
         while ((f_x <= 0) && (mark[x->value].empty()) && (x->value != u))
         {
             std::shared_ptr<Concise_Node> y = x->parent;
@@ -139,8 +137,7 @@ void Concise::compute_safe(int u)
                 else
                     it = path.begin();
             }
-            path.splice(path.begin(), p_k);
-            std::swap(path, p_k);
+            p_k.insert(p_k.end(), it, path.end());
         }
 
         if (f_x > 0 && x->children == 0)
@@ -148,15 +145,15 @@ void Concise::compute_safe(int u)
             if (l_i != x)
                 I_k.emplace_back(std::move(x), v_star, f_x);
             else
-                I_k.back() = {std::move(l_i), v_star, f_x};
+                I_k.back() = {std::move(x), v_star, f_x};
             partial_result[v_star].emplace_back(std::move(p_k), std::move(I_k));
         }
         else if (!mark[x->value].empty())
         {
             int v = mark[x->value].back();
             mark[x->value].pop_back();
-            std::list<cut> &I_v = partial_result[v].back().second;
-            I_k.splice(I_k.end(), I_v);
+            std::vector<route> &I_v = partial_result[v].back().second;
+            I_k.insert(I_k.end(), I_v.begin(), I_v.end());
             partial_result[v].back() = {std::move(p_k), std::move(I_k)};
         }
         else
@@ -168,37 +165,40 @@ void Concise::compute_safe(int u)
                 x = x->parent;
             }
 
-            auto it = p_k.begin();
-            auto itl = I_k.begin();
-            auto itr = I_k.begin();
-            auto I_k_end = I_k.end();
-            auto p_k_end = p_k.end();
+            int i = 0, l = 0, r = 0;
+            int I_k_end = I_k.size();
+            int p_k_end = p_k.size();
             int current = 0;
-            std::list<int> p;
-            std::list<cut> I;
+            std::vector<int> p;
+            std::vector<cut> I;
 
-            while (it != p_k_end)
+            while (i != p_k_end)
             {
-                if (itl != I_k_end && *it == std::get<0>(*itl)->value)
+                if (l != I_k_end)
                 {
-                    if (*++it != std::get<1>(*itl))
+                    int u = std::get<0>(I_k[l])->value;
+                    int v = std::get<1>(I_k[l]);
+                    double flow = std::get<2>(I_k[l]);
+
+                    if (p_k[i] == u)
                     {
-                        I.emplace_back(*itl);
-                        current++;
+                        if (p_k[i + 1] != v)
+                        {
+                            I.emplace_back(u, v, flow);
+                            current++;
+                        }
+                        l++;
                     }
-                    it--;
-                    itl++;
                 }
 
-                if (itr != I_k_end && *it == std::get<1>(*itr))
+                if (r != I_k_end && p_k[i] == std::get<1>(I_k[r]))
                 {
-                    if (*--it != std::get<0>(*itr)->value)
+                    if (p_k[i - 1] != std::get<0>(I_k[r])->value)
                         current--;
-                    it++;
-                    itr++;
+                    r++;
                 }
 
-                p.emplace_back(*it++);
+                p.emplace_back(p_k[i++]);
 
                 if (current == 0)
                 {
@@ -214,6 +214,10 @@ void Concise::compute_safe(int u)
     for (int x : M)
         mark[x].clear();
 
+    trie[u].reset();
+    partial_result[u].clear();
+    partial_result[u].shrink_to_fit();
+
     return;
 }
 
@@ -225,12 +229,23 @@ void Concise::print_maximal_safe_paths()
         for (auto &value : path_ind.first)
             std::cout << value << " ";
         std::cout << "\n";
-        for (auto &ind : path_ind.second)
+        if (int(path_ind.first.size()) > 4)
         {
-            std::cout << std::get<0>(ind)->value << " ";
-            std::cout << std::get<1>(ind) << " ";
-            std::cout << std::get<2>(ind) << " ";
-            std::cout << "\n";
+            for (auto &ind : path_ind.second)
+            {
+                std::cout << std::get<0>(ind) << " ";
+                std::cout << std::get<1>(ind) << " ";
+                std::cout << std::get<2>(ind) << " ";
+                std::cout << "\n";
+            }
+        }
+        else
+        {
+            for (auto &ind : path_ind.second)
+            {
+                std::cout << std::get<2>(ind) << " ";
+                std::cout << "\n";
+            }
         }
         std::cout << "\n";
     }
@@ -244,7 +259,7 @@ void Concise::calculate_statistics()
     for (auto &path_ind : concise_repr)
     {
         length += path_ind.first.size();
-        length += path_ind.second.size() * 3;
+        length += path_ind.second.size() * (int(path_ind.first.size()) > 4 ? 3 : 1);
     }
 
     return;

@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 #include <queue>
-#include <list>
 
 template <typename Node>
 void __p(std::shared_ptr<Node> a);
@@ -14,8 +13,6 @@ template <typename T, typename F>
 void __p(std::pair<T, F> a);
 template <typename T, typename F, typename G>
 void __p(std::tuple<T, F, G> a);
-template <typename T>
-void __p(std::list<T> a);
 template <typename T>
 void __p(std::vector<T> a);
 template <typename T>
@@ -61,16 +58,6 @@ void __p(std::tuple<T, F, G> a)
     std::cout << "}";
 }
 
-template <typename T>
-void __p(std::list<T> a)
-{
-    std::cout << "{";
-    for (auto it = a.begin(); it != a.end();)
-    {
-        __p(*it);
-        std::cout << ",}"[++it == a.end()];
-    }
-}
 template <typename T>
 void __p(std::vector<T> a)
 {

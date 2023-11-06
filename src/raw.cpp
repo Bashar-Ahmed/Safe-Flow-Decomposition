@@ -76,7 +76,7 @@ void Raw::compute_safe(int u)
             f_x += f_max_in[x] - f_in[x];
             x = k;
         }
-        leaves[v].emplace_back(std::make_pair(current_node, f_x));
+        leaves[v].emplace_back(std::move(current_node), f_x);
     }
 
     if (v_star != -1)
@@ -84,14 +84,13 @@ void Raw::compute_safe(int u)
 
     for (auto &&p : leaves[u])
     {
-        std::shared_ptr<Raw_Node> x = p.first;
+        std::shared_ptr<Raw_Node> &x = p.first;
         double f_x = p.second;
         double excess = f_x - f_out_u + f_max_out_u;
 
         if ((v_star == -1) || (excess <= 0))
         {
-
-            std::list<int> path;
+            std::vector<int> path;
             bool invalid = false;
             current_node = x;
             while (current_node->parent != trie[u]->head)
@@ -108,8 +107,7 @@ void Raw::compute_safe(int u)
             {
                 path.emplace_back(current_node->value);
                 path.emplace_back(u);
-                raw_repr.emplace_back(std::move(std::make_pair(f_x, std::vector<int>{std::make_move_iterator(std::begin(path)),
-                                                                                     std::make_move_iterator(std::end(path))})));
+                raw_repr.emplace_back(f_x, std::move(path));
             }
         }
 
@@ -125,9 +123,14 @@ void Raw::compute_safe(int u)
                 x = y;
             }
             if (x->children == 0)
-                leaves[v_star].emplace_back(std::make_pair(x, f_x));
+                leaves[v_star].emplace_back(std::move(x), f_x);
         }
     }
+
+    trie[u].reset();
+    leaves[u].clear();
+    leaves[u].shrink_to_fit();
+
     return;
 }
 

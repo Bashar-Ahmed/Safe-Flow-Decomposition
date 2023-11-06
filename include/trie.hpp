@@ -36,15 +36,14 @@ struct AC_Trie : public std::enable_shared_from_this<AC_Trie>
     bool is_fail;
     int value;
     double flow;
-    std::weak_ptr<AC_Trie> fail;
+    AC_Trie *fail;
     std::vector<std::pair<int, std::shared_ptr<AC_Trie>>> children;
 
     void add_fail()
     {
-        std::shared_ptr<AC_Trie> shared_this = shared_from_this();
-        this->fail = shared_this;
+        this->fail = this;
         std::queue<std::shared_ptr<AC_Trie>> q;
-        q.push(shared_this);
+        q.push(shared_from_this());
 
         while (!q.empty())
         {
@@ -52,24 +51,24 @@ struct AC_Trie : public std::enable_shared_from_this<AC_Trie>
             q.pop();
             for (auto &&source_node : source->children)
             {
-                auto target = source;
-                source_node.second->fail.reset();
-                while (target.get() != this)
+                AC_Trie *target = source.get();
+                source_node.second->fail = nullptr;
+                while (target != this)
                 {
-                    target = target->fail.lock();
+                    target = target->fail;
                     for (auto &&target_node : target->children)
                     {
                         if (source_node.first == target_node.first)
                         {
-                            source_node.second->fail = target_node.second;
+                            source_node.second->fail = target_node.second.get();
                             target_node.second->is_fail = true;
-                            target = shared_this;
+                            target = this;
                             break;
                         }
                     }
                 }
-                if (source_node.second->fail.lock().get() == nullptr)
-                    source_node.second->fail = shared_this;
+                if (source_node.second->fail == nullptr)
+                    source_node.second->fail = this;
                 q.push(source_node.second);
             }
         }
