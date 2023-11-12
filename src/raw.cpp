@@ -127,7 +127,6 @@ void Raw::compute_safe(int u)
         }
     }
 
-    trie[u].reset();
     leaves[u].clear();
     leaves[u].shrink_to_fit();
 

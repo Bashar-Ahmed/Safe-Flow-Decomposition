@@ -80,7 +80,7 @@ void Concise::compute_safe(int u)
             current_v = trie[v]->insert(k, f_max_in[current_u_value], current_v);
             current_v->parent->v_max_in = current_v;
             f_x += f_max_in[current_u_value] - f_in[current_u_value];
-            current_u = current_u->v_max_in;
+            current_u = current_u->v_max_in.lock();
             current_u_value = k;
         }
 
@@ -214,7 +214,6 @@ void Concise::compute_safe(int u)
     for (int x : M)
         mark[x].clear();
 
-    trie[u].reset();
     partial_result[u].clear();
     partial_result[u].shrink_to_fit();
 
@@ -229,23 +228,12 @@ void Concise::print_maximal_safe_paths()
         for (auto &value : path_ind.first)
             std::cout << value << " ";
         std::cout << "\n";
-        if (int(path_ind.first.size()) > 4)
+        for (auto &ind : path_ind.second)
         {
-            for (auto &ind : path_ind.second)
-            {
-                std::cout << std::get<0>(ind) << " ";
-                std::cout << std::get<1>(ind) << " ";
-                std::cout << std::get<2>(ind) << " ";
-                std::cout << "\n";
-            }
-        }
-        else
-        {
-            for (auto &ind : path_ind.second)
-            {
-                std::cout << std::get<2>(ind) << " ";
-                std::cout << "\n";
-            }
+            std::cout << std::get<0>(ind) << " ";
+            std::cout << std::get<1>(ind) << " ";
+            std::cout << std::get<2>(ind) << " ";
+            std::cout << "\n";
         }
         std::cout << "\n";
     }
@@ -259,7 +247,7 @@ void Concise::calculate_statistics()
     for (auto &path_ind : concise_repr)
     {
         length += path_ind.first.size();
-        length += path_ind.second.size() * (int(path_ind.first.size()) > 4 ? 3 : 1);
+        length += path_ind.second.size() * 3;
     }
 
     return;
