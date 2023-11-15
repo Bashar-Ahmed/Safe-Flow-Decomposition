@@ -43,7 +43,7 @@ struct Graph
                         w = stod(temp);
                     token++;
                 }
-                adjacency_list[u].push_back({v, w});
+                adjacency_list[u].emplace_back(v, w);
             }
             line++;
         }

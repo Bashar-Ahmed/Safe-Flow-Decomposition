@@ -4,6 +4,7 @@
 
 build/**
 data/**
+plot/**
 
 *.graph
 *.json

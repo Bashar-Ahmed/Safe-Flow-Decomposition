@@ -4,8 +4,6 @@ int main(int argc, char *argv[])
 {
     std::string arg = "profile";
     bool profile = (argc > 1) && (arg.compare(argv[1]) == 0);
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(NULL);
 
     while (true)
     {

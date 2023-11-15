@@ -1,41 +1,48 @@
 import json
 import subprocess
 
-algos = ["complete", "raw"]
+algos = ["complete", "raw", "concise", "optimal"]
+dataset = "single/nontrivial/catfish/simulation"
 
-graphs = subprocess.getoutput("find . -type f -wholename './data/simulation/*.graph'")
+graphs = subprocess.getoutput(f"find ../data/preprocessed/{dataset} -type f -wholename '*.graph'")
 graphs = [graph for graph in graphs.split("\n") if len(graph) > 0]
 
 complete = [[], [], []]
 raw = [[], [], []]
+concise = [[], [], []]
+optimal = [[], [], []]
+
 nodes = []
 edges = []
 
-for algo in algos:
-    nodes = []
-    edges = []
-    for graph in graphs:
-        print(graph)
-        data = subprocess.getoutput(
-            f"bash time.sh /usr/bin/time -v ./build/{algo} profile < {graph}"
-        )
+for graph in graphs:
+    
+    with open(graph, "r") as file:
+        lines = [line for line in file.read().split('\n') if len(line)>0]
+        nodes.append(int(lines[1]))
+        edges.append(len(lines)-2)
+
+    print(graph)
+
+    for algo in algos:
+
+        data = subprocess.getoutput(f"/usr/bin/time -v ./build/{algo} < {graph} > temp.txt")
         stats = [stat for stat in data.replace(" ", "").split("\n")]
-        node = int(stats[0].split(":")[1])
-        edge = int(stats[1].split(":")[1])
-        tokens = int(stats[2].split(":")[1])
-        # time = float(stats[4].split(":")[1]) + float(stats[5].split(":")[1])
-        memory = int(stats[12].split(":")[1])
-        time = float(stats[-1].split(":")[1])
-        nodes.append(node)
-        edges.append(edge)
-        globals()[algo][0].append(tokens)
-        globals()[algo][1].append(round(time, 9))
+        time = float(stats[1].split(":")[1]) + float(stats[2].split(":")[1])
+        memory = int(stats[9].split(":")[1])
+        tokens = 0
+
+        with open("temp.txt","r") as file:
+            lines = file.read().split("\n")
+            lines = [line.split(" ") for line in lines if len(line)>0 and line[0]!='#']
+            words = [j for sub in lines for j in sub if len(j)>0]
+            tokens += len(words)
+
+        globals()[algo][0].append(tokens/100)
+        globals()[algo][1].append(round(time, 2))
         globals()[algo][2].append(memory)
 
-# print(raw)
-# print(complete)
+data = {"nodes": nodes, "edges": edges, "complete": complete, "raw": raw, "concise": concise, "optimal":optimal}
 
-data = {"nodes": nodes, "edges": edges, "raw": raw, "complete": complete}
-
-with open("data_1000.json", "w") as file:
+with open("data.json", "w") as file:
     json.dump(data, file)

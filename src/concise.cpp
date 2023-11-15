@@ -6,8 +6,9 @@ Concise::Concise(const std::string &graph) : Graph(graph)
     f_max_in.resize(nodes, 0);
     v_max_in.resize(nodes, -1);
     mark.resize(nodes);
-    trie.resize(nodes);
     partial_result.resize(nodes);
+
+    trie.reserve(nodes);
 
     for (int i = 0; i < nodes; i++)
     {
@@ -30,13 +31,13 @@ Concise::Concise(const std::string &graph) : Graph(graph)
     std::vector<bool> visited(nodes, false);
     for (int i = 0; i < nodes; i++)
     {
-        if (!visited[i])
+        if (f_in[i] == 0)
             topo_dfs(i, visited);
     }
     std::reverse(topo_order.begin(), topo_order.end());
 
     for (int i = 0; i < nodes; i++)
-        trie[i] = std::make_unique<Path_Trie<Concise_Node>>(i);
+        trie.emplace_back(std::make_unique<Path_Trie<Concise_Node>>(i));
 }
 
 void Concise::compute_safe(int u)
