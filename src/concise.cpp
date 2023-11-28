@@ -141,6 +141,20 @@ void Concise::compute_safe(int u)
             p_k.insert(p_k.end(), it, path.end());
         }
 
+        auto &end = I_k.back();
+        if (!p_k.empty() && std::get<0>(end)->value == p_k.back() && x->value == std::get<1>(end))
+        {
+            I_k.pop_back();
+            if (!I_k.empty())
+            {
+                concise_repr.emplace_back(std::move(p_k), std::vector<cut>());
+                std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](route &r)
+                               { return cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
+            }
+            I_k.clear();
+            p_k.clear();
+        }
+
         if (f_x > 0 && x->children == 0)
         {
             if (l_i != x)
@@ -157,7 +171,7 @@ void Concise::compute_safe(int u)
             I_k.insert(I_k.end(), I_v.begin(), I_v.end());
             partial_result[v].back() = {std::move(p_k), std::move(I_k)};
         }
-        else
+        else if (!I_k.empty())
         {
             int end = std::get<1>(I_k.back());
             while (p_k.back() != end)
@@ -165,50 +179,9 @@ void Concise::compute_safe(int u)
                 p_k.emplace_back(x->value);
                 x = x->parent;
             }
-
-            int i = 0, l = 0, r = 0;
-            int I_k_end = I_k.size();
-            int p_k_end = p_k.size();
-            int current = 0;
-            std::vector<int> p;
-            std::vector<cut> I;
-
-            while (i != p_k_end)
-            {
-                if (l != I_k_end)
-                {
-                    int u = std::get<0>(I_k[l])->value;
-                    int v = std::get<1>(I_k[l]);
-                    double flow = std::get<2>(I_k[l]);
-
-                    if (p_k[i] == u)
-                    {
-                        if (p_k[i + 1] != v)
-                        {
-                            I.emplace_back(u, v, flow);
-                            current++;
-                        }
-                        l++;
-                    }
-                }
-
-                if (r != I_k_end && p_k[i] == std::get<1>(I_k[r]))
-                {
-                    if (p_k[i - 1] != std::get<0>(I_k[r])->value)
-                        current--;
-                    r++;
-                }
-
-                p.emplace_back(p_k[i++]);
-
-                if (current == 0)
-                {
-                    if (!I.empty())
-                        concise_repr.emplace_back(std::move(p), std::move(I));
-                    else
-                        p.clear();
-                }
-            }
+            concise_repr.emplace_back(std::move(p_k), std::vector<cut>());
+            std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](route &r)
+                           { return cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
         }
     }
 
