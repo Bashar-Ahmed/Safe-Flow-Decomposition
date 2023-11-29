@@ -21,7 +21,7 @@ struct Optimal : public Graph
     bool right_extendible(int node, double flow);
     void compute_trivial();
     void print_maximal_safe_paths();
-    void calculate_statistics();
+ 
     void construct_forest();
     void dfs_in(int n, int &label);
     void dfs_out(int n, int &label);

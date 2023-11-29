@@ -147,15 +147,6 @@ void Raw::print_maximal_safe_paths()
     return;
 }
 
-void Raw::calculate_statistics()
-{
-    total_nodes += nodes;
-    total_edges += edges;
-    for (auto &&path : raw_repr)
-        length += path.second.size() + 1;
-    return;
-}
-
 void Raw::topo_dfs(int v, std::vector<bool> &visited)
 {
     visited[v] = true;

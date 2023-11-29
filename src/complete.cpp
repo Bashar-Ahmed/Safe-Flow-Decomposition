@@ -207,12 +207,3 @@ void Complete::print_maximal_safe_paths()
 	}
 	return;
 }
-
-void Complete::calculate_statistics()
-{
-	total_nodes += nodes;
-	total_edges += edges;
-	for (auto &&path : complete_repr)
-		length += path.second.size() + 1;
-	return;
-}

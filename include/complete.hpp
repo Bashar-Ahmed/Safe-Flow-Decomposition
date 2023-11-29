@@ -20,5 +20,4 @@ struct Complete : public Graph
     void compute_safe();
     void compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> &root);
     void print_maximal_safe_paths();
-    void calculate_statistics();
 };

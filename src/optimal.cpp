@@ -212,16 +212,6 @@ void Optimal::print_maximal_safe_paths()
     return;
 }
 
-void Optimal::calculate_statistics()
-{
-    total_nodes += nodes;
-    total_edges += edges;
-    length += 5 * optimal_repr.size();
-    length += 4 * optimal_repr_l.size();
-    length += 4 * optimal_repr_r.size();
-    return;
-}
-
 void Optimal::construct_forest()
 {
     for (int i = 0; i < nodes; i++)

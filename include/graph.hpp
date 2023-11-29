@@ -52,11 +52,6 @@ struct Graph
 
     virtual ~Graph() {}
     virtual void print_maximal_safe_paths() {}
-    virtual void calculate_statistics() {}
-
-    static inline int length = 0;
-    static inline int total_nodes = 0;
-    static inline int total_edges = 0;
 
     static std::string read()
     {
@@ -68,12 +63,5 @@ struct Graph
             return temp;
         }
         return "";
-    };
-
-    static void print_statistics()
-    {
-        std::cout << "Nodes: " << total_nodes << "\n";
-        std::cout << "Edges: " << total_edges << "\n";
-        std::cout << "Tokens: " << length << "\n";
     };
 };

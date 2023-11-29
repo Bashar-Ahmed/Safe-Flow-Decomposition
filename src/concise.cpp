@@ -214,19 +214,6 @@ void Concise::print_maximal_safe_paths()
     return;
 }
 
-void Concise::calculate_statistics()
-{
-    total_nodes += nodes;
-    total_edges += edges;
-    for (auto &path_ind : concise_repr)
-    {
-        length += path_ind.first.size();
-        length += path_ind.second.size() * 3;
-    }
-
-    return;
-}
-
 void Concise::topo_dfs(int v, std::vector<bool> &visited)
 {
     visited[v] = true;
