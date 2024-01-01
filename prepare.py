@@ -36,7 +36,7 @@ def is_funnel(graph):
 
 dataset = "catfish"
 
-files = subprocess.getoutput(f"find ./data/{dataset} -type f -wholename '*.graph'")
+files = subprocess.getoutput(f"find ../data/{dataset} -type f -wholename '*.graph'")
 files = [file_name for file_name in files.split("\n") if len(file_name) > 0]
 
 for file_name in files:
