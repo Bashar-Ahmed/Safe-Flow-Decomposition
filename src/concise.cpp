@@ -141,8 +141,7 @@ void Concise::compute_safe(int u)
             p_k.insert(p_k.end(), it, path.end());
         }
 
-        auto &end = I_k.back();
-        if (!p_k.empty() && std::get<0>(end)->value == p_k.back() && x->value == std::get<1>(end))
+        if (!p_k.empty() && l_i->value == p_k.back() && x->value == u)
         {
             I_k.pop_back();
             if (!I_k.empty())
@@ -173,8 +172,7 @@ void Concise::compute_safe(int u)
         }
         else if (!I_k.empty())
         {
-            int end = std::get<1>(I_k.back());
-            while (p_k.back() != end)
+            while (p_k.back() != u)
             {
                 p_k.emplace_back(x->value);
                 x = x->parent;
