@@ -7,14 +7,14 @@
 
 typedef std::vector<std::pair<int, double>>::iterator iterator;
 
-struct Complete : public Graph
+struct Old_Raw : public Graph
 {
     std::vector<double> f_in, f_out;
     std::vector<std::pair<std::vector<iterator>, std::pair<int, double>>> path;
 
-    std::vector<std::pair<double, std::vector<int>>> complete_repr;
+    std::vector<std::pair<double, std::vector<int>>> old_raw_repr;
 
-    Complete(const std::string &graph);
+    Old_Raw(const std::string &graph);
     void insert(std::shared_ptr<AC_Trie> &root, std::vector<int> &str);
     void decompose_path();
     void compute_safe();

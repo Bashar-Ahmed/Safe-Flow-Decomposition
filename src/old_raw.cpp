@@ -1,6 +1,6 @@
-#include "../include/complete.hpp"
+#include "../include/old_raw.hpp"
 
-Complete::Complete(const std::string &graph) : Graph(graph)
+Old_Raw::Old_Raw(const std::string &graph) : Graph(graph)
 {
 	f_in.resize(nodes, 0);
 	f_out.resize(nodes, 0);
@@ -20,7 +20,7 @@ Complete::Complete(const std::string &graph) : Graph(graph)
 	}
 }
 
-void Complete::decompose_path()
+void Old_Raw::decompose_path()
 {
 
 	for (int i = 0; i < nodes; i++)
@@ -66,14 +66,14 @@ void Complete::decompose_path()
 	return;
 }
 
-void Complete::insert(std::shared_ptr<AC_Trie> &root, std::vector<int> &str)
+void Old_Raw::insert(std::shared_ptr<AC_Trie> &root, std::vector<int> &str)
 {
 
 	if (root->children.empty())
 	{
 		if (root->is_fail)
 			return;
-		complete_repr.emplace_back(root->flow, str);
+		old_raw_repr.emplace_back(root->flow, str);
 	}
 	else
 	{
@@ -86,7 +86,7 @@ void Complete::insert(std::shared_ptr<AC_Trie> &root, std::vector<int> &str)
 	}
 }
 
-void Complete::compute_safe()
+void Old_Raw::compute_safe()
 {
 
 	std::shared_ptr<AC_Trie> root = std::make_shared<AC_Trie>();
@@ -164,9 +164,8 @@ void Complete::compute_safe()
 	return;
 }
 
-void Complete::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> &root)
+void Old_Raw::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> &root)
 {
-
 	auto current_node = root;
 	for (auto &&path_node : route)
 	{
@@ -195,10 +194,10 @@ void Complete::compress_path(double flow, std::deque<int> &route, std::shared_pt
 	return;
 }
 
-void Complete::print_maximal_safe_paths()
+void Old_Raw::print_maximal_safe_paths()
 {
 	std::cout << metadata << "\n\n";
-	for (auto &&path : complete_repr)
+	for (auto &&path : old_raw_repr)
 	{
 		std::cout << path.first << " ";
 		for (auto &&value : path.second)

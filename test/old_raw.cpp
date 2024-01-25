@@ -2,22 +2,22 @@
 #include <sstream>
 #include <gtest/gtest.h>
 
-#include "../include/complete.hpp"
+#include "../include/old_raw.hpp"
 
-TEST(COMPLETE, complete)
+TEST(OLD_RAW, old_raw)
 {
 
     std::ifstream input_file, truth_file;
     input_file.open("../test/test.graph", std::ifstream::in);
     std::cin.rdbuf(input_file.rdbuf());
 
-    std::vector<std::pair<double, std::vector<int>>> truth, complete_result;
+    std::vector<std::pair<double, std::vector<int>>> truth, old_raw_result;
 
     std::string graph_string = Graph::read();
-    Complete *graph = new Complete(graph_string);
+    Old_Raw *graph = new Old_Raw(graph_string);
     graph->decompose_path();
     graph->compute_safe();
-    complete_result = std::move(graph->complete_repr);
+    old_raw_result = std::move(graph->old_raw_repr);
 
     truth_file.open("../test/test.truth", std::ifstream::in);
     std::string metadata, line, token;
@@ -34,5 +34,5 @@ TEST(COMPLETE, complete)
         truth.push_back(std::move(path));
     }
 
-    EXPECT_EQ(complete_result, truth);
+    EXPECT_EQ(old_raw_result, truth);
 }
