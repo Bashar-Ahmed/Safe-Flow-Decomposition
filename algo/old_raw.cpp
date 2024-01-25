@@ -1,4 +1,4 @@
-#include "../include/complete.hpp"
+#include "../include/old_raw.hpp"
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
         if (graph_string == "")
             break;
 
-        Complete *graph = new Complete(graph_string);
+        Old_Raw *graph = new Old_Raw(graph_string);
 
         graph->decompose_path();
         graph->compute_safe();
