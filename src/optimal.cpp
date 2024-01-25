@@ -164,7 +164,7 @@ void Optimal::compute_trivial()
                 if ((!right_extendible(x_value, flow - loss)) && (!left_extendible(r_value, flow - loss)))
                 {
                     if (r_value != x_parent)
-                        optimal_repr_r.emplace_back(flow - loss, std::vector<int>{r_value, x_parent, x_value});
+                        trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_value});
                 }
                 break;
             }
@@ -173,7 +173,7 @@ void Optimal::compute_trivial()
             if (!right_extendible(x_value, flow - loss))
             {
                 if (y != x_parent)
-                    optimal_repr_r.emplace_back(flow - loss, std::vector<int>{y, x_parent, x_value});
+                    trivial.emplace_back(flow - loss, std::vector<int>{y, x_value});
             }
             y = forest_in[y]->parent;
             x = forest_in[binary_search_2(x.get(), forest_in[y].get())];
@@ -203,6 +203,14 @@ void Optimal::print_maximal_safe_paths()
     }
     std::cout << "\n";
     for (auto &&path : optimal_repr_r)
+    {
+        std::cout << path.first << " ";
+        for (auto &&value : path.second)
+            std::cout << value << " ";
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+    for (auto &&path : trivial)
     {
         std::cout << path.first << " ";
         for (auto &&value : path.second)

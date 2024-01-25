@@ -200,12 +200,21 @@ void Concise::print_maximal_safe_paths()
         for (auto &value : path_ind.first)
             std::cout << value << " ";
         std::cout << "\n";
+        int start = path_ind.first.front();
+        int end = path_ind.first.back();
+        int prev_end = -1;
         for (auto &ind : path_ind.second)
         {
-            std::cout << std::get<0>(ind) << " ";
-            std::cout << std::get<1>(ind) << " ";
-            std::cout << std::get<2>(ind) << " ";
+            int l = std::get<0>(ind);
+            int r = std::get<1>(ind);
+            int flow = std::get<2>(ind);
+            if (l != start && l != prev_end)
+                std::cout << l << " ";
+            if (r != end)
+                std::cout << r << " ";
+            std::cout << flow << " ";
             std::cout << "\n";
+            prev_end = r;
         }
         std::cout << "\n";
     }

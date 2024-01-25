@@ -31,6 +31,13 @@ TEST(OPTIMAL, optimal)
         optimal_result.push_back(std::move(path));
     }
 
+    for (auto &&path : graph->trivial)
+    {
+        path.second.insert(path.second.begin() + 1, graph->forest_in[path.second[1]]->parent);
+        path.second.push_back(path.second[2]);
+        optimal_result.push_back(std::move(path));
+    }
+
     for (auto &&path : optimal_result)
     {
         std::vector<int> complete_path;
