@@ -14,10 +14,10 @@ TEST(OLD_RAW, old_raw)
     std::vector<std::pair<double, std::vector<int>>> truth, old_raw_result;
 
     std::string graph_string = Graph::read();
-    Old *graph = new Old(graph_string);
+    Old *graph = new Old(graph_string, false, true);
     graph->decompose_path();
     graph->compute_safe();
-    old_raw_result = std::move(graph->old_raw_repr);
+    old_raw_result = std::move(graph->raw_repr);
 
     truth_file.open("../test/test.truth", std::ifstream::in);
     std::string metadata, line, token;

@@ -1,6 +1,6 @@
 #include "../include/old.hpp"
 
-Old::Old(const std::string &graph) : Graph(graph)
+Old::Old(const std::string &graph, bool concise, bool actrie) : Graph(graph), concise(concise), actrie(actrie)
 {
 	f_in.resize(nodes, 0);
 	f_out.resize(nodes, 0);
@@ -54,26 +54,27 @@ void Old::decompose_path()
 
 					for (auto &&edge : route)
 						edge->second -= flow.second;
-					path.emplace_back(std::move(route), flow);
+					st_path.emplace_back(std::move(route), flow);
 				}
 			}
 		}
 	}
 
-	for (auto &&edge_list : path)
+	for (auto &&edge_list : st_path)
 		for (auto &&edge : edge_list.first)
 			edge->second += edge_list.second.second;
 	return;
 }
 
-void Old::insert(std::shared_ptr<AC_Trie> &root, std::vector<int> &str)
+template <typename T>
+void Old::insert(std::shared_ptr<AC_Trie<T>> &root, std::vector<int> &str)
 {
 
 	if (root->children.empty())
 	{
 		if (root->is_fail)
 			return;
-		old_raw_repr.emplace_back(root->flow, str);
+		raw_repr.emplace_back(root->data, str);
 	}
 	else
 	{
@@ -88,9 +89,10 @@ void Old::insert(std::shared_ptr<AC_Trie> &root, std::vector<int> &str)
 
 void Old::compute_safe()
 {
+	std::shared_ptr<AC_Trie<double>> root = std::make_shared<AC_Trie<double>>();
+	std::shared_ptr<AC_Trie<std::vector<cut>>> root_concise = std::make_shared<AC_Trie<std::vector<cut>>>();
 
-	std::shared_ptr<AC_Trie> root = std::make_shared<AC_Trie>();
-	for (auto &&path_value : path)
+	for (auto &&path_value : st_path)
 	{
 
 		std::deque<int> route;
@@ -164,7 +166,8 @@ void Old::compute_safe()
 	return;
 }
 
-void Old::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie> &root)
+template <typename T>
+void Old::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie<T>> &root)
 {
 	auto current_node = root;
 	for (auto &&path_node : route)
@@ -183,21 +186,22 @@ void Old::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_
 		}
 		if (list_end)
 		{
-			std::shared_ptr<AC_Trie> trie = std::make_shared<AC_Trie>();
+			std::shared_ptr<AC_Trie<T>> trie = std::make_shared<AC_Trie<T>>();
 			trie->value = path_node;
 			trie->is_fail = false;
 			current_node->children.emplace_back(path_node, std::move(trie));
 			current_node = current_node->children.back().second;
 		}
 	}
-	current_node->flow = flow;
+	if (!concise)
+		current_node->data = flow;
 	return;
 }
 
 void Old::print_maximal_safe_paths()
 {
 	std::cout << metadata << "\n\n";
-	for (auto &&path : old_raw_repr)
+	for (auto &&path : raw_repr)
 	{
 		std::cout << path.first << " ";
 		for (auto &&value : path.second)

@@ -30,20 +30,21 @@ struct Path_Trie
         return;
     }
 };
-
-struct AC_Trie : public std::enable_shared_from_this<AC_Trie>
+template <typename T>
+    requires std::is_same_v<T, double> || std::is_same_v<T, std::vector<std::tuple<int, int, double>>>
+struct AC_Trie : public std::enable_shared_from_this<AC_Trie<T>>
 {
     bool is_fail;
     int value;
-    double flow;
-    AC_Trie *fail;
-    std::vector<std::pair<int, std::shared_ptr<AC_Trie>>> children;
+    T data;
+    AC_Trie<T> *fail;
+    std::vector<std::pair<int, std::shared_ptr<AC_Trie<T>>>> children;
 
     void add_fail()
     {
         this->fail = this;
-        std::queue<std::shared_ptr<AC_Trie>> q;
-        q.push(shared_from_this());
+        std::queue<std::shared_ptr<AC_Trie<T>>> q;
+        q.push(this->shared_from_this());
 
         while (!q.empty())
         {
@@ -51,7 +52,7 @@ struct AC_Trie : public std::enable_shared_from_this<AC_Trie>
             q.pop();
             for (auto &&source_node : source->children)
             {
-                AC_Trie *target = source.get();
+                AC_Trie<T> *target = source.get();
                 source_node.second->fail = nullptr;
                 while (target != this)
                 {
