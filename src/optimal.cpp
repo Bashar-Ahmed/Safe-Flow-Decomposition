@@ -100,21 +100,23 @@ void Optimal::compute_non_trivial()
             {
                 int l = binary_search_1(forest_in[i].get(), excess_flow);
                 double in_loss = forest_in[l]->loss - i_loss;
-                double rest_flow = excess_flow - abs(in_loss);
+                double rest_flow = p.second - abs(in_loss);
                 int r = binary_search_1(forest_out[j].get(), rest_flow);
                 if (l != i || r != j)
                 {
                     double flow = p.second - in_loss - (forest_out[r]->loss - j_loss);
-                    if (l == i)
-                        optimal_repr_l.emplace_back(flow, std::vector<int>{i, j, r});
-                    else if (r == j)
-                        optimal_repr_r.emplace_back(flow, std::vector<int>{l, i, j});
-                    else
-                        optimal_repr.emplace_back(flow, std::vector<int>{l, i, j, r});
-                    break;
+                    if (!left_extendible(l, flow) && !right_extendible(r, flow))
+                    {
+                        if (l == i)
+                            optimal_repr_l.emplace_back(flow, std::vector<int>{i, j, r});
+                        else if (r == j)
+                            optimal_repr_r.emplace_back(flow, std::vector<int>{l, i, j});
+                        else
+                            optimal_repr.emplace_back(flow, std::vector<int>{l, i, j, r});
+                    }
                 }
                 int next = forest_out[r]->parent;
-                if (forest_out[next]->parent == next)
+                if (forest_out[r]->parent == r)
                     break;
                 excess_flow = p.second - abs(forest_out[next]->loss - j_loss);
             }
@@ -161,9 +163,9 @@ void Optimal::compute_trivial()
             double loss = r_loss - forest_in[x_parent]->loss;
             if (loss < flow)
             {
-                if ((!right_extendible(x_value, flow - loss)) && (!left_extendible(r_value, flow - loss)))
+                if ((!right_extendible(x_value, flow - loss)))
                 {
-                    if (r_value != x_parent)
+                    if (r_value != x_parent && (!left_extendible(r_value, flow - loss)))
                         trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_value});
                 }
                 break;
@@ -172,7 +174,7 @@ void Optimal::compute_trivial()
             loss = forest_in[y]->loss - forest_in[x_parent]->loss;
             if (!right_extendible(x_value, flow - loss))
             {
-                if (y != x_parent)
+                if (y != x_parent && (!left_extendible(y, flow - loss)))
                     trivial.emplace_back(flow - loss, std::vector<int>{y, x_value});
             }
             y = forest_in[y]->parent;
