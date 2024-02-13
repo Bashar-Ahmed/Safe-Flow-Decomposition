@@ -1,4 +1,4 @@
-#include "../include/old.hpp"
+#include "../include/optimal.hpp"
 
 int main()
 {
@@ -11,10 +11,10 @@ int main()
         if (graph_string == "")
             break;
 
-        Old *graph = new Old(graph_string);
+        Optimal *graph = new Optimal(graph_string, false);
 
-        graph->decompose_path();
-        graph->compute_safe();
+        graph->compute_non_trivial();
+        graph->compute_trivial();
         graph->print_maximal_safe_paths();
         delete graph;
     }

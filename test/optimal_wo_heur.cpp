@@ -4,7 +4,7 @@
 
 #include "../include/optimal.hpp"
 
-TEST(OPTIMAL, optimal)
+TEST(OPTIMAL_WO_HEUR, optimal_wo_heur)
 {
     std::ifstream input_file, truth_file;
 
@@ -13,27 +13,14 @@ TEST(OPTIMAL, optimal)
     std::vector<std::pair<double, std::vector<int>>> truth, optimal_result;
 
     std::string graph_string = Graph::read();
-    Optimal *graph = new Optimal(graph_string, true);
+    Optimal *graph = new Optimal(graph_string, false);
     graph->compute_non_trivial();
     graph->compute_trivial();
 
     optimal_result = std::move(graph->optimal_repr);
 
-    for (auto &&path : graph->optimal_repr_l)
-    {
-        path.second.insert(path.second.begin(), path.second[0]);
-        optimal_result.push_back(std::move(path));
-    }
-
-    for (auto &&path : graph->optimal_repr_r)
-    {
-        path.second.push_back(path.second[2]);
-        optimal_result.push_back(std::move(path));
-    }
-
     for (auto &&path : graph->trivial)
     {
-        path.second.insert(path.second.begin() + 1, graph->forest_in[path.second[1]]->parent);
         path.second.push_back(path.second[2]);
         optimal_result.push_back(std::move(path));
     }

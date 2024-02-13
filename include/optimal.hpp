@@ -7,13 +7,15 @@
 
 struct Optimal : public Graph
 {
+    bool heuristics;
+
     std::vector<double> f_in, f_out, f_max_in, f_max_out;
     std::vector<int> v_max_in, v_max_out, c_max_in, c_max_out;
     std::vector<std::shared_ptr<Optimal_Node>> forest_in, forest_out;
 
     std::vector<std::pair<double, std::vector<int>>> optimal_repr, optimal_repr_l, optimal_repr_r, trivial;
 
-    Optimal(const std::string &graph);
+    Optimal(const std::string &graph, bool heuristics);
     int binary_search_1(Optimal_Node *node, double flow);
     int binary_search_2(Optimal_Node *node_1, Optimal_Node *node_2);
     void compute_non_trivial();

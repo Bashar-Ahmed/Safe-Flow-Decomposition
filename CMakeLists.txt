@@ -21,7 +21,7 @@ foreach (EXEC IN LISTS EXECS)
     add_executable(
         ${ALGO} 
         ${PROJECT_SOURCE_DIR}/algo/${ALGO}.cpp 
-        ${PROJECT_SOURCE_DIR}/src/${ALGO}.cpp 
+        ${ALGOS}
         ${LIBS}
     )
 endforeach ()

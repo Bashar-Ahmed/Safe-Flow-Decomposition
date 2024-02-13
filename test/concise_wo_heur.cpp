@@ -4,7 +4,7 @@
 
 #include "../include/concise.hpp"
 
-TEST(CONCISE, concise)
+TEST(CONCISE_WO_HEUR, concise_wo_heur)
 {
     std::ifstream input_file, truth_file;
 
@@ -13,7 +13,7 @@ TEST(CONCISE, concise)
     std::vector<std::pair<double, std::vector<int>>> truth, concise_result;
 
     std::string graph_string = Graph::read();
-    Concise *graph = new Concise(graph_string, true);
+    Concise *graph = new Concise(graph_string, false);
     for (int u : graph->topo_order)
         graph->compute_safe(u);
 

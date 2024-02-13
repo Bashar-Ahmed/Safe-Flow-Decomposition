@@ -1,6 +1,6 @@
 #include "../include/optimal.hpp"
 
-Optimal::Optimal(const std::string &graph) : Graph(graph)
+Optimal::Optimal(const std::string &graph, bool heuristics) : Graph(graph), heuristics(heuristics)
 {
     f_in.resize(nodes, 0);
     f_out.resize(nodes, 0);
@@ -107,10 +107,15 @@ void Optimal::compute_non_trivial()
                     double flow = p.second - in_loss - (forest_out[r]->loss - j_loss);
                     if (!left_extendible(l, flow) && !right_extendible(r, flow))
                     {
-                        if (l == i)
-                            optimal_repr_l.emplace_back(flow, std::vector<int>{i, j, r});
-                        else if (r == j)
-                            optimal_repr_r.emplace_back(flow, std::vector<int>{l, i, j});
+                        if (heuristics)
+                        {
+                            if (l == i)
+                                optimal_repr_l.emplace_back(flow, std::vector<int>{i, j, r});
+                            else if (r == j)
+                                optimal_repr_r.emplace_back(flow, std::vector<int>{l, i, j});
+                            else
+                                optimal_repr.emplace_back(flow, std::vector<int>{l, i, j, r});
+                        }
                         else
                             optimal_repr.emplace_back(flow, std::vector<int>{l, i, j, r});
                     }
@@ -166,7 +171,12 @@ void Optimal::compute_trivial()
                 if ((!right_extendible(x_value, flow - loss)))
                 {
                     if (r_value != x_parent && (!left_extendible(r_value, flow - loss)))
-                        trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_value});
+                    {
+                        if (heuristics)
+                            trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_value});
+                        else
+                            trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_parent, x_value});
+                    }
                 }
                 break;
             }
@@ -175,7 +185,12 @@ void Optimal::compute_trivial()
             if (!right_extendible(x_value, flow - loss))
             {
                 if (y != x_parent && (!left_extendible(y, flow - loss)))
-                    trivial.emplace_back(flow - loss, std::vector<int>{y, x_value});
+                {
+                    if (heuristics)
+                        trivial.emplace_back(flow - loss, std::vector<int>{y, x_value});
+                    else
+                        trivial.emplace_back(flow - loss, std::vector<int>{y, x_parent, x_value});
+                }
             }
             y = forest_in[y]->parent;
             x = forest_in[binary_search_2(x.get(), forest_in[y].get())];
@@ -196,22 +211,25 @@ void Optimal::print_maximal_safe_paths()
         std::cout << "\n";
     }
     std::cout << "\n";
-    for (auto &&path : optimal_repr_l)
+    if (heuristics)
     {
-        std::cout << path.first << " ";
-        for (auto &&value : path.second)
-            std::cout << value << " ";
+        for (auto &&path : optimal_repr_l)
+        {
+            std::cout << path.first << " ";
+            for (auto &&value : path.second)
+                std::cout << value << " ";
+            std::cout << "\n";
+        }
+        std::cout << "\n";
+        for (auto &&path : optimal_repr_r)
+        {
+            std::cout << path.first << " ";
+            for (auto &&value : path.second)
+                std::cout << value << " ";
+            std::cout << "\n";
+        }
         std::cout << "\n";
     }
-    std::cout << "\n";
-    for (auto &&path : optimal_repr_r)
-    {
-        std::cout << path.first << " ";
-        for (auto &&value : path.second)
-            std::cout << value << " ";
-        std::cout << "\n";
-    }
-    std::cout << "\n";
     for (auto &&path : trivial)
     {
         std::cout << path.first << " ";

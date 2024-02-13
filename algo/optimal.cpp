@@ -11,7 +11,7 @@ int main()
         if (graph_string == "")
             break;
 
-        Optimal *graph = new Optimal(graph_string);
+        Optimal *graph = new Optimal(graph_string, true);
 
         graph->compute_non_trivial();
         graph->compute_trivial();

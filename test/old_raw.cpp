@@ -2,7 +2,7 @@
 #include <sstream>
 #include <gtest/gtest.h>
 
-#include "../include/old_raw.hpp"
+#include "../include/old.hpp"
 
 TEST(OLD_RAW, old_raw)
 {
@@ -14,7 +14,7 @@ TEST(OLD_RAW, old_raw)
     std::vector<std::pair<double, std::vector<int>>> truth, old_raw_result;
 
     std::string graph_string = Graph::read();
-    Old_Raw *graph = new Old_Raw(graph_string);
+    Old *graph = new Old(graph_string);
     graph->decompose_path();
     graph->compute_safe();
     old_raw_result = std::move(graph->old_raw_repr);

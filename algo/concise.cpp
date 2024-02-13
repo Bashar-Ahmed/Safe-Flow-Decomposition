@@ -11,7 +11,7 @@ int main()
         if (graph_string == "")
             break;
 
-        Concise *graph = new Concise(graph_string);
+        Concise *graph = new Concise(graph_string, true);
 
         for (int u : graph->topo_order)
             graph->compute_safe(u);

@@ -1,4 +1,4 @@
-#include "../include/old.hpp"
+#include "../include/concise.hpp"
 
 int main()
 {
@@ -11,10 +11,10 @@ int main()
         if (graph_string == "")
             break;
 
-        Old *graph = new Old(graph_string);
+        Concise *graph = new Concise(graph_string, false);
 
-        graph->decompose_path();
-        graph->compute_safe();
+        for (int u : graph->topo_order)
+            graph->compute_safe(u);
         graph->print_maximal_safe_paths();
         delete graph;
     }
