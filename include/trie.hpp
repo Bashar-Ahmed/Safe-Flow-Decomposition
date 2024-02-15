@@ -2,7 +2,23 @@
 
 #include <memory>
 #include <queue>
-#include "../include/node.hpp"
+
+struct Raw_Node
+{
+    int value, children;
+    double flow;
+    std::shared_ptr<Raw_Node> parent;
+    Raw_Node(int u) : value(u), children(0), flow(0.0) {}
+};
+
+struct Concise_Node
+{
+    int value, children;
+    double flow;
+    std::shared_ptr<Concise_Node> parent;
+    std::weak_ptr<Concise_Node> v_max_in;
+    Concise_Node(int u) : value(u), children(0), flow(0.0) {}
+};
 
 template <typename T>
     requires std::is_same_v<T, Raw_Node> || std::is_same_v<T, Concise_Node>
@@ -36,7 +52,7 @@ struct AC_Trie : public std::enable_shared_from_this<AC_Trie<T>>
 {
     bool is_fail;
     int value;
-    T data;
+    T payload;
     AC_Trie<T> *fail;
     std::vector<std::pair<int, std::shared_ptr<AC_Trie<T>>>> children;
 

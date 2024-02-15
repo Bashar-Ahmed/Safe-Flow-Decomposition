@@ -49,7 +49,7 @@ Optimal::Optimal(const std::string &graph, bool heuristics) : Graph(graph), heur
     construct_forest();
 }
 
-int Optimal::binary_search_1(Optimal_Node *node, double flow)
+int Optimal::binary_search_1(Forest_Node *node, double flow)
 {
     int l = 0;
     int r = node->depth;
@@ -65,7 +65,7 @@ int Optimal::binary_search_1(Optimal_Node *node, double flow)
     return node->level_ancestor(r)->value;
 }
 
-int Optimal::binary_search_2(Optimal_Node *node_1, Optimal_Node *node_2)
+int Optimal::binary_search_2(Forest_Node *node_1, Forest_Node *node_2)
 {
     int l = node_2->depth + 1;
     int r = node_1->depth;
@@ -244,8 +244,8 @@ void Optimal::construct_forest()
 {
     for (int i = 0; i < nodes; i++)
     {
-        forest_in.emplace_back(std::make_shared<Optimal_Node>(i));
-        forest_out.emplace_back(std::make_shared<Optimal_Node>(i));
+        forest_in.emplace_back(std::make_shared<Forest_Node>(i));
+        forest_out.emplace_back(std::make_shared<Forest_Node>(i));
     }
 
     for (int i = 0; i < nodes; i++)

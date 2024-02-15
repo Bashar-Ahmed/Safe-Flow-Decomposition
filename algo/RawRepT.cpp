@@ -11,7 +11,7 @@ int main()
         if (graph_string == "")
             break;
 
-        Old *graph = new Old(graph_string, false, true);
+        Old<RAW> *graph = new Old<RAW>(graph_string, true);
 
         graph->decompose_path();
         graph->compute_safe();

@@ -1,6 +1,7 @@
 #include "../include/old.hpp"
 
-Old::Old(const std::string &graph, bool concise, bool ac_trie) : Graph(graph), concise(concise), ac_trie(ac_trie)
+template <ALGO T>
+Old<T>::Old(const std::string &graph, bool ac_trie) : Graph(graph), ac_trie(ac_trie)
 {
 	f_in.resize(nodes, 0);
 	f_out.resize(nodes, 0);
@@ -20,7 +21,8 @@ Old::Old(const std::string &graph, bool concise, bool ac_trie) : Graph(graph), c
 	}
 }
 
-void Old::decompose_path()
+template <ALGO T>
+void Old<T>::decompose_path()
 {
 
 	for (int i = 0; i < nodes; i++)
@@ -66,15 +68,18 @@ void Old::decompose_path()
 	return;
 }
 
-template <typename T>
-void Old::insert(std::shared_ptr<AC_Trie<T>> &root, std::vector<int> &str)
+template <ALGO T>
+void Old<T>::insert(std::shared_ptr<AC_Trie<data>> &root, std::deque<int> &str)
 {
 
 	if (root->children.empty())
 	{
 		if (root->is_fail)
 			return;
-		raw_repr.emplace_back(root->data, str);
+		if constexpr (T == RAW)
+			raw_repr.emplace_back(str, root->payload);
+		else
+			concise_repr.emplace_back(str, root->payload);
 	}
 	else
 	{
@@ -87,10 +92,11 @@ void Old::insert(std::shared_ptr<AC_Trie<T>> &root, std::vector<int> &str)
 	}
 }
 
-void Old::compute_safe()
+template <ALGO T>
+void Old<T>::compute_safe()
 {
-	std::shared_ptr<AC_Trie<double>> root = std::make_shared<AC_Trie<double>>();
-	std::shared_ptr<AC_Trie<std::vector<cut>>> root_concise = std::make_shared<AC_Trie<std::vector<cut>>>();
+	std::shared_ptr<AC_Trie<data>> root = std::make_shared<AC_Trie<data>>();
+	path<cut> prev = std::make_pair(std::deque<int>(), std::vector<cut>());
 
 	for (auto &&path_value : st_path)
 	{
@@ -130,49 +136,48 @@ void Old::compute_safe()
 
 			if ((left_iter != right_iter) && (route.size() > 2))
 			{
-				if (concise)
-				{
-					if (ac_trie)
-					{
-					}
-					else
-					{
-						if (concise_repr.empty())
-							concise_repr.emplace_back(route, std::vector<cut>({cut(route.front(), route.back(), flow)}));
-						else
-						{
-							auto &end = concise_repr.back();
-							auto it = route.begin();
-							bool subpath = false;
-							for (auto &&path_element : end.first)
-							{
-								if (it == route.end())
-								{
-									subpath = true;
-									break;
-								}
-								if (*it == path_element)
-									it++;
-								else
-									it = route.begin();
-							}
-							if (subpath || it == route.begin())
-								concise_repr.emplace_back(route, std::vector<cut>({cut(route.front(), route.back(), flow)}));
-							else
-							{
-								while (it != route.end())
-									end.first.emplace_back(*it++);
-								end.second.emplace_back(cut(route.front(), route.back(), flow));
-							}
-						}
-					}
-				}
-				else
+				if constexpr (T == RAW)
 				{
 					if (ac_trie)
 						compress_path(flow, route, root);
 					else
-						raw_repr_wo_trie.emplace_back(flow, route);
+						raw_repr.emplace_back(route, flow);
+				}
+				else
+				{
+					if (prev.first.empty())
+						prev = std::make_pair(route, std::vector<cut>({cut(route.front(), route.back(), flow)}));
+					else
+					{
+						auto it = route.begin();
+						bool subpath = false;
+						for (auto &&path_element : prev.first)
+						{
+							if (it == route.end())
+							{
+								subpath = true;
+								break;
+							}
+							if (*it == path_element)
+								it++;
+							else
+								it = route.begin();
+						}
+						if (subpath || it == route.begin())
+						{
+							if (ac_trie)
+								compress_path(prev.second, prev.first, root);
+							else
+								concise_repr.emplace_back(std::move(prev));
+							prev = std::make_pair(route, std::vector<cut>({cut(route.front(), route.back(), flow)}));
+						}
+						else
+						{
+							while (it != route.end())
+								prev.first.emplace_back(*it++);
+							prev.second.emplace_back(cut(route.front(), route.back(), flow));
+						}
+					}
 				}
 			}
 
@@ -205,14 +210,27 @@ void Old::compute_safe()
 				break;
 		}
 	}
-	root->add_fail();
-	std::vector<int> str;
-	insert(root, str);
+
+	if constexpr (T == CONCISE)
+	{
+		if (ac_trie)
+			compress_path(prev.second, prev.first, root);
+		else
+			concise_repr.emplace_back(std::move(prev));
+	}
+
+	if (ac_trie)
+	{
+		root->add_fail();
+		std::deque<int> str;
+		insert(root, str);
+	}
+
 	return;
 }
 
-template <typename T>
-void Old::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_Trie<T>> &root)
+template <ALGO T>
+void Old<T>::compress_path(data payload, std::deque<int> &route, std::shared_ptr<AC_Trie<data>> &root)
 {
 	auto current_node = root;
 	for (auto &&path_node : route)
@@ -231,27 +249,50 @@ void Old::compress_path(double flow, std::deque<int> &route, std::shared_ptr<AC_
 		}
 		if (list_end)
 		{
-			std::shared_ptr<AC_Trie<T>> trie = std::make_shared<AC_Trie<T>>();
+			std::shared_ptr<AC_Trie<data>> trie = std::make_shared<AC_Trie<data>>();
 			trie->value = path_node;
 			trie->is_fail = false;
 			current_node->children.emplace_back(path_node, std::move(trie));
 			current_node = current_node->children.back().second;
 		}
 	}
-	if (!concise)
-		current_node->data = flow;
+	current_node->payload = payload;
 	return;
 }
 
-void Old::print_maximal_safe_paths()
+template <ALGO T>
+void Old<T>::print_maximal_safe_paths()
 {
 	std::cout << metadata << "\n\n";
-	for (auto &&path : raw_repr)
+	if constexpr (T == RAW)
 	{
-		std::cout << path.first << " ";
-		for (auto &&value : path.second)
-			std::cout << value << " ";
-		std::cout << "\n";
+		for (auto &&path : raw_repr)
+		{
+			std::cout << path.second << " ";
+			for (auto &&value : path.first)
+				std::cout << value << " ";
+			std::cout << "\n";
+		}
+	}
+	else
+	{
+		for (auto &path_ind : concise_repr)
+		{
+			for (auto &value : path_ind.first)
+				std::cout << value << " ";
+			std::cout << "\n";
+			for (auto &ind : path_ind.second)
+			{
+				std::cout << std::get<2>(ind) << " ";
+				std::cout << std::get<0>(ind) << " ";
+				std::cout << std::get<1>(ind) << " ";
+				std::cout << "\n";
+			}
+			std::cout << "\n";
+		}
 	}
 	return;
 }
+
+template class Old<RAW>;
+template class Old<CONCISE>;

@@ -14,7 +14,7 @@ TEST(OLD_RAW, old_raw)
     std::vector<std::pair<double, std::vector<int>>> truth, old_raw_result;
 
     std::string graph_string = Graph::read();
-    Old *graph = new Old(graph_string, false, true);
+    Old<RAW> *graph = new Old<RAW>(graph_string, true);
     graph->decompose_path();
     graph->compute_safe();
     old_raw_result = std::move(graph->raw_repr);
