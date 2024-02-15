@@ -25,8 +25,7 @@ struct Old : public Graph
     std::vector<double> f_in, f_out;
     std::vector<std::pair<std::vector<iterator>, std::pair<int, double>>> st_path;
 
-    std::vector<std::pair< std::deque<int>,double>> raw_repr;
-    // std::vector<std::pair<double, std::deque<int>>> raw_repr_wo_trie;
+    std::vector<std::pair<double, std::deque<int>>> raw_repr;
     std::vector<path<cut>> concise_repr;
 
     Old(const std::string &graph, bool ac_trie);

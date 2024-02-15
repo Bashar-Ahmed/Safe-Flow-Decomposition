@@ -77,7 +77,7 @@ void Old<T>::insert(std::shared_ptr<AC_Trie<data>> &root, std::deque<int> &str)
 		if (root->is_fail)
 			return;
 		if constexpr (T == RAW)
-			raw_repr.emplace_back(str, root->payload);
+			raw_repr.emplace_back(root->payload, str);
 		else
 			concise_repr.emplace_back(str, root->payload);
 	}
@@ -141,7 +141,7 @@ void Old<T>::compute_safe()
 					if (ac_trie)
 						compress_path(flow, route, root);
 					else
-						raw_repr.emplace_back(route, flow);
+						raw_repr.emplace_back(flow, route);
 				}
 				else
 				{
@@ -268,8 +268,8 @@ void Old<T>::print_maximal_safe_paths()
 	{
 		for (auto &&path : raw_repr)
 		{
-			std::cout << path.second << " ";
-			for (auto &&value : path.first)
+			std::cout << path.first << " ";
+			for (auto &&value : path.second)
 				std::cout << value << " ";
 			std::cout << "\n";
 		}
