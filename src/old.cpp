@@ -1,6 +1,6 @@
 #include "../include/old.hpp"
 
-Old::Old(const std::string &graph, bool concise, bool actrie) : Graph(graph), concise(concise), actrie(actrie)
+Old::Old(const std::string &graph, bool concise, bool ac_trie) : Graph(graph), concise(concise), ac_trie(ac_trie)
 {
 	f_in.resize(nodes, 0);
 	f_out.resize(nodes, 0);
@@ -129,7 +129,52 @@ void Old::compute_safe()
 			}
 
 			if ((left_iter != right_iter) && (route.size() > 2))
-				compress_path(flow, route, root);
+			{
+				if (concise)
+				{
+					if (ac_trie)
+					{
+					}
+					else
+					{
+						if (concise_repr.empty())
+							concise_repr.emplace_back(route, std::vector<cut>({cut(route.front(), route.back(), flow)}));
+						else
+						{
+							auto &end = concise_repr.back();
+							auto it = route.begin();
+							bool subpath = false;
+							for (auto &&path_element : end.first)
+							{
+								if (it == route.end())
+								{
+									subpath = true;
+									break;
+								}
+								if (*it == path_element)
+									it++;
+								else
+									it = route.begin();
+							}
+							if (subpath || it == route.begin())
+								concise_repr.emplace_back(route, std::vector<cut>({cut(route.front(), route.back(), flow)}));
+							else
+							{
+								while (it != route.end())
+									end.first.emplace_back(*it++);
+								end.second.emplace_back(cut(route.front(), route.back(), flow));
+							}
+						}
+					}
+				}
+				else
+				{
+					if (ac_trie)
+						compress_path(flow, route, root);
+					else
+						raw_repr_wo_trie.emplace_back(flow, route);
+				}
+			}
 
 			if (right_iter != path_end)
 			{

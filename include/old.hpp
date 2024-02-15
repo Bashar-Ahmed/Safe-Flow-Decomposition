@@ -11,7 +11,7 @@ template <typename T>
 using path = std::pair<std::deque<int>, std::vector<T>>;
 struct Old : public Graph
 {
-    bool concise, actrie;
+    bool concise, ac_trie;
 
     std::vector<double> f_in, f_out;
     std::vector<std::pair<std::vector<iterator>, std::pair<int, double>>> st_path;
@@ -20,7 +20,7 @@ struct Old : public Graph
     std::vector<std::pair<double, std::deque<int>>> raw_repr_wo_trie;
     std::vector<path<cut>> concise_repr;
 
-    Old(const std::string &graph, bool concise, bool actrie);
+    Old(const std::string &graph, bool concise, bool ac_trie);
     template <typename T>
     void insert(std::shared_ptr<AC_Trie<T>> &root, std::vector<int> &str);
     void decompose_path();
