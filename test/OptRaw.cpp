@@ -1,18 +1,18 @@
-//         }
-//     }
-//     void generate_result()
-//     {
-//         std::cin.rdbuf(input_file.rdbuf());
-
-//
-
 #include "../include/raw.hpp"
 #include "test.hpp"
 
 class OptRaw : public Base
 {
 protected:
-    bool verify() { return truth == result; }
+    bool verify()
+    {
+        std::sort(truth.begin(), truth.end());
+        std::sort(result.begin(), result.end());
+        bool eq = truth == result;
+        truth.clear();
+        result.clear();
+        return eq;
+    }
     void generate_result()
     {
         std::string graph_string = Graph::read();
@@ -20,8 +20,6 @@ protected:
         for (int u : graph->topo_order)
             graph->compute_safe(u);
         result = std::move(graph->raw_repr);
-
-        std::sort(result.begin(), result.end());
         delete graph;
     }
 };

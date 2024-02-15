@@ -5,7 +5,15 @@
 class RawRepT : public Base
 {
 protected:
-    bool verify() { return truth == result; }
+    bool verify()
+    {
+        std::sort(truth.begin(), truth.end());
+        std::sort(result.begin(), result.end());
+        bool eq = truth == result;
+        truth.clear();
+        result.clear();
+        return eq;
+    }
     void generate_result()
     {
         std::string graph_string = Graph::read();
@@ -20,8 +28,6 @@ protected:
                 path.push_back(node);
             result.emplace_back(path_instance.first, std::move(path));
         }
-
-        std::sort(result.begin(), result.end());
         delete graph;
     }
 };

@@ -202,7 +202,8 @@ void Optimal::compute_trivial()
 
 void Optimal::print_maximal_safe_paths()
 {
-    std::cout << metadata << "\n\n";
+    std::cout << std::fixed << std::setprecision(0);
+    std::cout << metadata << "\n";
     for (auto &&path : optimal_repr)
     {
         std::cout << path.first << " ";

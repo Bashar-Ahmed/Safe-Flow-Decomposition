@@ -46,19 +46,22 @@ protected:
     int run()
     {
         std::cin.rdbuf(input_file.rdbuf());
-        while (read_truth())
+        read_truth();
+        while (true)
         {
+            graph_number++;
+            bool end = read_truth();
+            generate_result();
             if (!verify())
                 return graph_number;
-            graph_number++;
-            generate_result();
+            if (end)
+                break;
         }
         return -1;
     }
 
     bool read_truth()
     {
-        truth.clear();
         std::string metadata, line, token;
         while (std::getline(truth_file, line))
         {
@@ -75,7 +78,6 @@ protected:
                 path.second.push_back(stoi(token));
             truth.push_back(std::move(path));
         }
-        std::sort(truth.begin(), truth.end());
         return true;
     }
 };

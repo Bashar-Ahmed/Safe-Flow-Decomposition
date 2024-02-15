@@ -4,7 +4,15 @@
 class OptRep : public Base
 {
 protected:
-    bool verify() { return truth == result; }
+    bool verify()
+    {
+        std::sort(truth.begin(), truth.end());
+        std::sort(result.begin(), result.end());
+        bool eq = truth == result;
+        truth.clear();
+        result.clear();
+        return eq;
+    }
     void generate_result()
     {
         std::string graph_string = Graph::read();
@@ -42,8 +50,6 @@ protected:
             }
             path.second = std::move(complete_path);
         }
-
-        std::sort(result.begin(), result.end());
         delete graph;
     }
 };

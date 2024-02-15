@@ -263,7 +263,8 @@ void Old<T>::compress_path(data payload, std::deque<int> &route, std::shared_ptr
 template <ALGO T>
 void Old<T>::print_maximal_safe_paths()
 {
-	std::cout << metadata << "\n\n";
+	std::cout << std::fixed << std::setprecision(0);
+	std::cout << metadata << "\n";
 	if constexpr (T == RAW)
 	{
 		for (auto &&path : raw_repr)

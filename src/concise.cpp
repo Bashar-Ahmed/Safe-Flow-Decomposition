@@ -194,7 +194,8 @@ void Concise::compute_safe(int u)
 
 void Concise::print_maximal_safe_paths()
 {
-    std::cout << metadata << "\n\n";
+    std::cout << std::fixed << std::setprecision(0);
+    std::cout << metadata << "\n";
     for (auto &path_ind : concise_repr)
     {
         for (auto &value : path_ind.first)
@@ -210,11 +211,11 @@ void Concise::print_maximal_safe_paths()
                 int l = std::get<0>(ind);
                 int r = std::get<1>(ind);
                 int flow = std::get<2>(ind);
+                std::cout << flow << " ";
                 if (l != start && l != prev_end)
                     std::cout << l << " ";
                 if (r != end)
                     std::cout << r << " ";
-                std::cout << flow << " ";
                 std::cout << "\n";
                 prev_end = r;
             }
@@ -223,9 +224,9 @@ void Concise::print_maximal_safe_paths()
         {
             for (auto &ind : path_ind.second)
             {
+                std::cout << std::get<2>(ind) << " ";
                 std::cout << std::get<0>(ind) << " ";
                 std::cout << std::get<1>(ind) << " ";
-                std::cout << std::get<2>(ind) << " ";
                 std::cout << "\n";
             }
         }

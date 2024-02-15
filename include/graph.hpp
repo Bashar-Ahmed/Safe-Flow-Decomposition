@@ -1,9 +1,11 @@
 #pragma once
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <limits>
 #include <list>
 
 struct Graph
