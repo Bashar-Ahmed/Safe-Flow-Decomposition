@@ -10,24 +10,24 @@ file(GLOB algos ${PROJECT_SOURCE_DIR}/src/**.cpp)
 file(GLOB execs ${PROJECT_SOURCE_DIR}/algo/**.cpp)
 file(GLOB tests ${PROJECT_SOURCE_DIR}/test/**.cpp)
 
-add_library(library SHARED)
-target_sources(library PRIVATE ${algos} PUBLIC ${incs})
+add_library(src SHARED)
+target_sources(src PRIVATE ${algos} PUBLIC ${incs})
 
 # EXECUTABLES
 foreach (exec IN LISTS execs)
     get_filename_component(algo ${exec} NAME_WE)
     add_executable(${algo})
-    add_dependencies(${algo} library gtest)
+    add_dependencies(${algo} src gtest)
     target_sources(${algo} PRIVATE ${exec})
-    target_link_libraries(${algo} PRIVATE library)
+    target_link_libraries(${algo} PRIVATE src)
     add_test(${algo} ./gtest --gtest_filter=*${algo}*)
 endforeach ()
 
 # GTEST
 find_package(GTest REQUIRED)
 add_executable(gtest ${tests} )
-add_dependencies(${algo} library)
-target_link_libraries(gtest library GTest::gtest_main )
+add_dependencies(${algo} src)
+target_link_libraries(gtest src GTest::gtest_main)
 
 # CTEST
 enable_testing()

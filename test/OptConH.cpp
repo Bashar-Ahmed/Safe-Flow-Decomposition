@@ -8,7 +8,6 @@
 //     {
 //         std::sort(truth.begin(), truth.end());
 //         std::sort(result.begin(), result.end());
-//         EXPECT_EQ(truth, result);
 //         bool eq = truth == result;
 //         truth.clear();
 //         result.clear();
