@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <iostream>
-#include <algorithm>
 #include "graph.hpp"
 
 struct Forest_Node;

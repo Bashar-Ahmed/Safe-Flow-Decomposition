@@ -4,18 +4,18 @@
 #include <sstream>
 #include <gtest/gtest.h>
 
-inline std::string zebrafish_graph = "../test/test.graph";
-inline std::string zebrafish_truth = "../test/test.truth";
-inline std::string mouse_graph = "../test/test.graph";
-inline std::string mouse_truth = "../test/test.truth";
-inline std::string human_graph = "../test/test.graph";
-inline std::string human_truth = "../test/test.truth";
-inline std::string salmon_graph = "../test/test.graph";
-inline std::string salmon_truth = "../test/test.truth";
-inline std::string refsim_graph = "../test/test.graph";
-inline std::string refsim_truth = "../test/test.truth";
-inline std::string simulation_graph = "../test/test.graph";
-inline std::string simulation_truth = "../test/test.truth";
+inline std::string zebrafish_graph = "../test/graph.txt";
+inline std::string zebrafish_truth = "../test/truth.txt";
+inline std::string mouse_graph = "../test/graph.txt";
+inline std::string mouse_truth = "../test/truth.txt";
+inline std::string human_graph = "../test/graph.txt";
+inline std::string human_truth = "../test/truth.txt";
+inline std::string salmon_graph = "../test/graph.txt";
+inline std::string salmon_truth = "../test/truth.txt";
+inline std::string refsim_graph = "../test/graph.txt";
+inline std::string refsim_truth = "../test/truth.txt";
+inline std::string simulation_graph = "../test/graph.txt";
+inline std::string simulation_truth = "../test/truth.txt";
 
 #define GENERATE_TESTS(ALGORITHM)       \
     GENERATE_TEST(ALGORITHM, zebrafish) \

@@ -1,12 +1,14 @@
 #pragma once
 
-#include <iostream>
+#include <algorithm>
+#include <limits>
+#include <list>
 #include <iomanip>
+#include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <limits>
-#include <list>
 
 struct Graph
 {

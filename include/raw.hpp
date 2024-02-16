@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <algorithm>
 #include "graph.hpp"
 #include "trie.hpp"
 
@@ -18,6 +16,6 @@ struct Raw : public Graph
     Raw(const std::string &graph);
     void compute_safe(int u);
     void print_maximal_safe_paths();
- 
+
     void topo_dfs(int v, std::vector<bool> &visited);
 };

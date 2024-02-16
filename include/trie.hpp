@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
 #include <queue>
+#include <memory>
 
 struct Raw_Node
 {
