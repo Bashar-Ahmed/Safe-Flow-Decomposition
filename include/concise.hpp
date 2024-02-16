@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <algorithm>
-#include "../include/graph.hpp"
-#include "../include/trie.hpp"
+#include "graph.hpp"
+#include "trie.hpp"
 
 typedef std::tuple<std::shared_ptr<Concise_Node>, int, double> route;
 typedef std::tuple<int, int, double> cut;

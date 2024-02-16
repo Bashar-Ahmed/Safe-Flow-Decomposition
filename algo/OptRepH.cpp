@@ -1,4 +1,4 @@
-#include "../include/optimal.hpp"
+#include "optimal.hpp"
 
 int main()
 {

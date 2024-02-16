@@ -5,13 +5,13 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -O3")
 
 project(SAFE_FLOW_DECOMPOSITION)
 
-file(GLOB incs ${PROJECT_SOURCE_DIR}/include/**.hpp)
+include_directories(include)
 file(GLOB algos ${PROJECT_SOURCE_DIR}/src/**.cpp)
 file(GLOB execs ${PROJECT_SOURCE_DIR}/algo/**.cpp)
 file(GLOB tests ${PROJECT_SOURCE_DIR}/test/**.cpp)
 
 add_library(src SHARED)
-target_sources(src PRIVATE ${algos} PUBLIC ${incs})
+target_sources(src PRIVATE ${algos})
 
 # EXECUTABLES
 foreach (exec IN LISTS execs)
@@ -25,7 +25,7 @@ endforeach ()
 
 # GTEST
 find_package(GTest REQUIRED)
-add_executable(gtest ${tests} )
+add_executable(gtest ${tests})
 add_dependencies(${algo} src)
 target_link_libraries(gtest src GTest::gtest_main)
 

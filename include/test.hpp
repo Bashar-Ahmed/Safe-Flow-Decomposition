@@ -41,7 +41,16 @@ protected:
     std::ifstream input_file, truth_file;
     std::vector<std::pair<double, std::vector<int>>> truth, result;
     virtual void generate_result() { return; }
-    virtual bool verify() { return false; }
+
+    bool verify()
+    {
+        std::sort(truth.begin(), truth.end());
+        std::sort(result.begin(), result.end());
+        bool eq = truth == result;
+        truth.clear();
+        result.clear();
+        return eq;
+    }
 
     int run()
     {

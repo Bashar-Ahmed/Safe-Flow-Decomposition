@@ -1,4 +1,4 @@
-#include "../include/old.hpp"
+#include "old.hpp"
 
 int main()
 {

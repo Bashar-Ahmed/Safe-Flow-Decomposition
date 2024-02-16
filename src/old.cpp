@@ -1,4 +1,4 @@
-#include "../include/old.hpp"
+#include "old.hpp"
 
 template <ALGO T>
 Old<T>::Old(const std::string &graph, bool ac_trie) : Graph(graph), ac_trie(ac_trie)

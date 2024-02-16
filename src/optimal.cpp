@@ -1,4 +1,4 @@
-#include "../include/optimal.hpp"
+#include "optimal.hpp"
 
 Optimal::Optimal(const std::string &graph, bool heuristics) : Graph(graph), heuristics(heuristics)
 {

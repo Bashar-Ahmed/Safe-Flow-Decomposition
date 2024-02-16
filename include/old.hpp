@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <algorithm>
-#include "../include/graph.hpp"
-#include "../include/trie.hpp"
+#include "graph.hpp"
+#include "trie.hpp"
 
 typedef std::vector<std::pair<int, double>>::iterator iterator;
 typedef std::tuple<int, int, double> cut;

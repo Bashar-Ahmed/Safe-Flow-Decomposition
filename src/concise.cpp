@@ -1,4 +1,4 @@
-#include "../include/concise.hpp"
+#include "concise.hpp"
 
 Concise::Concise(const std::string &graph, bool heuristics) : Graph(graph), heuristics(heuristics)
 {

@@ -3,8 +3,6 @@
 **/.DS_Store
 
 build/**
-plot/**
 
 *.graph
-*.json
-*.png
+*.truth

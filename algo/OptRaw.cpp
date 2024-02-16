@@ -1,4 +1,4 @@
-#include "../include/raw.hpp"
+#include "raw.hpp"
 
 int main()
 {

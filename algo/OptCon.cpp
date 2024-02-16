@@ -1,4 +1,4 @@
-#include "../include/concise.hpp"
+#include "concise.hpp"
 
 int main()
 {

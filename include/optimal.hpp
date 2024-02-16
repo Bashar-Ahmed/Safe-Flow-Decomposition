@@ -3,7 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <algorithm>
-#include "../include/graph.hpp"
+#include "graph.hpp"
 
 struct Forest_Node;
 struct Optimal : public Graph

@@ -1,19 +1,10 @@
 
-#include "../include/old.hpp"
+#include "old.hpp"
 #include "test.hpp"
 
 class RawRepT : public Base
 {
 protected:
-    bool verify()
-    {
-        std::sort(truth.begin(), truth.end());
-        std::sort(result.begin(), result.end());
-        bool eq = truth == result;
-        truth.clear();
-        result.clear();
-        return eq;
-    }
     void generate_result()
     {
         std::string graph_string = Graph::read();

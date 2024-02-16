@@ -1,18 +1,9 @@
-#include "../include/optimal.hpp"
+#include "optimal.hpp"
 #include "test.hpp"
 
 class OptRepH : public Base
 {
 protected:
-    bool verify()
-    {
-        std::sort(truth.begin(), truth.end());
-        std::sort(result.begin(), result.end());
-        bool eq = truth == result;
-        truth.clear();
-        result.clear();
-        return eq;
-    }
     void generate_result()
     {
         std::string graph_string = Graph::read();
