@@ -1,10 +1,4 @@
-#include "main.hpp"
+#include "utility.hpp"
 #include "optimal.hpp"
 
-MAIN(
-
-    Optimal *graph = new Optimal(graph_string, false);
-    graph->compute_non_trivial();
-    graph->compute_trivial();
-
-)
+GENERATE_MAIN(OPTREP)

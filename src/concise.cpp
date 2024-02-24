@@ -1,6 +1,7 @@
 #include "concise.hpp"
 
-Concise::Concise(const std::string &graph, bool heuristics) : Graph(graph), heuristics(heuristics)
+template <bool H>
+Concise<H>::Concise(const std::string &graph) : Graph(graph)
 {
     f_in.resize(nodes, 0);
     f_max_in.resize(nodes, 0);
@@ -40,7 +41,8 @@ Concise::Concise(const std::string &graph, bool heuristics) : Graph(graph), heur
         trie.emplace_back(std::make_unique<Path_Trie<Concise_Node>>(i));
 }
 
-void Concise::compute_safe(int u)
+template <bool H>
+void Concise<H>::compute_safe(int u)
 {
     int v_max_out_u = -1;
     double f_max_out_u = 0;
@@ -87,7 +89,7 @@ void Concise::compute_safe(int u)
 
         mark[current_v->value].emplace_back(v);
         M.emplace_back(current_v->value);
-        partial_result[v].emplace_back(std::vector<int>(), std::move(std::vector<route>(1, std::make_tuple(std::move(current_v), v, f_x))));
+        partial_result[v].emplace_back(std::vector<int>(), std::move(std::vector<Route>(1, std::make_tuple(std::move(current_v), v, f_x))));
     }
 
     if (v_star != -1)
@@ -101,8 +103,8 @@ void Concise::compute_safe(int u)
     {
 
         std::vector<int> &p_k = p.first;
-        std::vector<route> &I_k = p.second;
-        route &last = I_k.back();
+        std::vector<Route> &I_k = p.second;
+        Route &last = I_k.back();
         double f_x, f_i = std::get<2>(last);
         std::shared_ptr<Concise_Node> &l_i = std::get<0>(last);
         std::shared_ptr<Concise_Node> x = l_i;
@@ -146,9 +148,9 @@ void Concise::compute_safe(int u)
             I_k.pop_back();
             if (!I_k.empty())
             {
-                concise_repr.emplace_back(std::move(p_k), std::vector<cut>());
-                std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](route &r)
-                               { return cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
+                concise_repr.emplace_back(std::move(p_k), std::vector<Cut>());
+                std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](Route &r)
+                               { return Cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
             }
             I_k.clear();
             p_k.clear();
@@ -166,7 +168,7 @@ void Concise::compute_safe(int u)
         {
             int v = mark[x->value].back();
             mark[x->value].pop_back();
-            std::vector<route> &I_v = partial_result[v].back().second;
+            std::vector<Route> &I_v = partial_result[v].back().second;
             I_k.insert(I_k.end(), I_v.begin(), I_v.end());
             partial_result[v].back() = {std::move(p_k), std::move(I_k)};
         }
@@ -177,9 +179,9 @@ void Concise::compute_safe(int u)
                 p_k.emplace_back(x->value);
                 x = x->parent;
             }
-            concise_repr.emplace_back(std::move(p_k), std::vector<cut>());
-            std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](route &r)
-                           { return cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
+            concise_repr.emplace_back(std::move(p_k), std::vector<Cut>());
+            std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](Route &r)
+                           { return Cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
         }
     }
 
@@ -192,16 +194,16 @@ void Concise::compute_safe(int u)
     return;
 }
 
-void Concise::print_maximal_safe_paths()
+template <bool H>
+void Concise<H>::print_maximal_safe_paths()
 {
-    std::cout << std::fixed << std::setprecision(0);
     std::cout << metadata << "\n";
     for (auto &path_ind : concise_repr)
     {
         for (auto &value : path_ind.first)
             std::cout << value << " ";
         std::cout << "\n";
-        if (heuristics)
+        if constexpr (H)
         {
             int start = path_ind.first.front();
             int end = path_ind.first.back();
@@ -235,7 +237,8 @@ void Concise::print_maximal_safe_paths()
     return;
 }
 
-void Concise::topo_dfs(int v, std::vector<bool> &visited)
+template <bool H>
+void Concise<H>::topo_dfs(int v, std::vector<bool> &visited)
 {
     visited[v] = true;
     for (std::pair<int, double> u : adjacency_list[v])
@@ -246,3 +249,6 @@ void Concise::topo_dfs(int v, std::vector<bool> &visited)
     topo_order.emplace_back(v);
     return;
 }
+
+template class Concise<true>;
+template class Concise<false>;

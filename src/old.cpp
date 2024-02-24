@@ -1,7 +1,7 @@
 #include "old.hpp"
 
-template <ALGO T>
-Old<T>::Old(const std::string &graph, bool ac_trie) : Graph(graph), ac_trie(ac_trie)
+template <ALGO A, bool T>
+Old<A, T>::Old(const std::string &graph) : Graph(graph)
 {
 	f_in.resize(nodes, 0);
 	f_out.resize(nodes, 0);
@@ -21,8 +21,8 @@ Old<T>::Old(const std::string &graph, bool ac_trie) : Graph(graph), ac_trie(ac_t
 	}
 }
 
-template <ALGO T>
-void Old<T>::decompose_path()
+template <ALGO A, bool T>
+void Old<A, T>::decompose_path()
 {
 
 	for (int i = 0; i < nodes; i++)
@@ -35,8 +35,8 @@ void Old<T>::decompose_path()
 				{
 
 					std::pair<int, double> flow = {i, std::numeric_limits<double>::max()};
-					std::vector<iterator> route;
-					iterator current_edge = edge;
+					std::vector<Iterator> route;
+					Iterator current_edge = edge;
 
 					while (true)
 					{
@@ -68,15 +68,15 @@ void Old<T>::decompose_path()
 	return;
 }
 
-template <ALGO T>
-void Old<T>::insert(std::shared_ptr<AC_Trie<data>> &root, std::deque<int> &str)
+template <ALGO A, bool T>
+void Old<A, T>::insert(std::shared_ptr<AC_Trie<data>> &root, std::deque<int> &str)
 {
 
 	if (root->children.empty())
 	{
 		if (root->is_fail)
 			return;
-		if constexpr (T == RAW)
+		if constexpr (A == RAW)
 			raw_repr.emplace_back(root->payload, str);
 		else
 			concise_repr.emplace_back(str, root->payload);
@@ -92,11 +92,11 @@ void Old<T>::insert(std::shared_ptr<AC_Trie<data>> &root, std::deque<int> &str)
 	}
 }
 
-template <ALGO T>
-void Old<T>::compute_safe()
+template <ALGO A, bool T>
+void Old<A, T>::compute_safe()
 {
 	std::shared_ptr<AC_Trie<data>> root = std::make_shared<AC_Trie<data>>();
-	path<cut> prev = std::make_pair(std::deque<int>(), std::vector<cut>());
+	Path<Cut> prev = std::make_pair(std::deque<int>(), std::vector<Cut>());
 
 	for (auto &&path_value : st_path)
 	{
@@ -136,9 +136,9 @@ void Old<T>::compute_safe()
 
 			if ((left_iter != right_iter) && (route.size() > 2))
 			{
-				if constexpr (T == RAW)
+				if constexpr (A == RAW)
 				{
-					if (ac_trie)
+					if constexpr (T)
 						compress_path(flow, route, root);
 					else
 						raw_repr.emplace_back(flow, route);
@@ -146,7 +146,7 @@ void Old<T>::compute_safe()
 				else
 				{
 					if (prev.first.empty())
-						prev = std::make_pair(route, std::vector<cut>({cut(route.front(), route.back(), flow)}));
+						prev = std::make_pair(route, std::vector<Cut>({Cut(route.front(), route.back(), flow)}));
 					else
 					{
 						auto it = route.begin();
@@ -165,17 +165,17 @@ void Old<T>::compute_safe()
 						}
 						if (subpath || it == route.begin())
 						{
-							if (ac_trie)
+							if constexpr (T)
 								compress_path(prev.second, prev.first, root);
 							else
 								concise_repr.emplace_back(std::move(prev));
-							prev = std::make_pair(route, std::vector<cut>({cut(route.front(), route.back(), flow)}));
+							prev = std::make_pair(route, std::vector<Cut>({Cut(route.front(), route.back(), flow)}));
 						}
 						else
 						{
 							while (it != route.end())
 								prev.first.emplace_back(*it++);
-							prev.second.emplace_back(cut(route.front(), route.back(), flow));
+							prev.second.emplace_back(Cut(route.front(), route.back(), flow));
 						}
 					}
 				}
@@ -211,15 +211,15 @@ void Old<T>::compute_safe()
 		}
 	}
 
-	if constexpr (T == CONCISE)
+	if constexpr (A == CONCISE)
 	{
-		if (ac_trie)
+		if constexpr (T)
 			compress_path(prev.second, prev.first, root);
 		else
 			concise_repr.emplace_back(std::move(prev));
 	}
 
-	if (ac_trie)
+	if constexpr (T)
 	{
 		root->add_fail();
 		std::deque<int> str;
@@ -229,8 +229,8 @@ void Old<T>::compute_safe()
 	return;
 }
 
-template <ALGO T>
-void Old<T>::compress_path(data payload, std::deque<int> &route, std::shared_ptr<AC_Trie<data>> &root)
+template <ALGO A, bool T>
+void Old<A, T>::compress_path(data payload, std::deque<int> &route, std::shared_ptr<AC_Trie<data>> &root)
 {
 	auto current_node = root;
 	for (auto &&path_node : route)
@@ -260,12 +260,11 @@ void Old<T>::compress_path(data payload, std::deque<int> &route, std::shared_ptr
 	return;
 }
 
-template <ALGO T>
-void Old<T>::print_maximal_safe_paths()
+template <ALGO A, bool T>
+void Old<A, T>::print_maximal_safe_paths()
 {
-	std::cout << std::fixed << std::setprecision(0);
 	std::cout << metadata << "\n";
-	if constexpr (T == RAW)
+	if constexpr (A == RAW)
 	{
 		for (auto &&path : raw_repr)
 		{
@@ -297,3 +296,5 @@ void Old<T>::print_maximal_safe_paths()
 
 template class Old<RAW>;
 template class Old<CONCISE>;
+template class Old<RAW, true>;
+template class Old<CONCISE, true>;

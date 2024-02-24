@@ -1,5 +1,5 @@
+#include "utility.hpp"
 #include "optimal.hpp"
-#include "test.hpp"
 
 class OptRepH : public Base
 {
@@ -7,9 +7,9 @@ protected:
     void generate_result()
     {
         std::string graph_string = Graph::read();
-        Optimal *graph = new Optimal(graph_string, true);
-        graph->compute_non_trivial();
-        graph->compute_trivial();
+
+        OPTREPH
+
         result = std::move(graph->optimal_repr);
 
         for (auto &&path : graph->optimal_repr_l)

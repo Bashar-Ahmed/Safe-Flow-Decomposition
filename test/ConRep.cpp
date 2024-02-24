@@ -1,6 +1,6 @@
 
+#include "utility.hpp"
 #include "old.hpp"
-#include "test.hpp"
 
 class ConRep : public Base
 {
@@ -8,11 +8,10 @@ protected:
     void generate_result()
     {
         std::string graph_string = Graph::read();
-        Old<CONCISE> *graph = new Old<CONCISE>(graph_string, false);
-        graph->decompose_path();
-        graph->compute_safe();
 
-        Old<RAW> *dummy = new Old<RAW>(graph_string, false);
+        CONREP
+
+        Old<RAW> *dummy = new Old<RAW>(graph_string);
         for (auto &&path_instance : graph->concise_repr)
         {
             auto it = path_instance.first.begin();

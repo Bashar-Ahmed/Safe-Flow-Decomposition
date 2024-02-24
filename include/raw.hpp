@@ -15,7 +15,8 @@ struct Raw : public Graph
 
     Raw(const std::string &graph);
     void compute_safe(int u);
-    void print_maximal_safe_paths();
+
+    void print_maximal_safe_paths() override;
 
     void topo_dfs(int v, std::vector<bool> &visited);
 };

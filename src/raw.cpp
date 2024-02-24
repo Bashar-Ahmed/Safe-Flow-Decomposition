@@ -136,7 +136,6 @@ void Raw::compute_safe(int u)
 
 void Raw::print_maximal_safe_paths()
 {
-    std::cout << std::fixed << std::setprecision(0);
     std::cout << metadata << "\n";
     for (auto &&path : raw_repr)
     {

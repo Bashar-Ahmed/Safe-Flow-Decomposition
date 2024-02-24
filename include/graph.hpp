@@ -16,6 +16,25 @@ struct Graph
     std::string metadata;
     std::vector<std::vector<std::pair<int, double>>> adjacency_list;
 
+    static void init()
+    {
+        std::ios_base::sync_with_stdio(false);
+        std::cin.tie(NULL);
+        std::cout << std::fixed << std::setprecision(0);
+    }
+
+    static std::string read()
+    {
+        std::string temp;
+        while (std::getline(std::cin, temp, '#'))
+        {
+            if (temp.length() == 0)
+                continue;
+            return temp;
+        }
+        return "";
+    };
+
     Graph(const std::string &graph)
     {
         std::stringstream lines(graph);
@@ -55,17 +74,5 @@ struct Graph
     };
 
     virtual ~Graph() {}
-    virtual void print_maximal_safe_paths() {}
-
-    static std::string read()
-    {
-        std::string temp;
-        while (std::getline(std::cin, temp, '#'))
-        {
-            if (temp.length() == 0)
-                continue;
-            return temp;
-        }
-        return "";
-    };
+    virtual void print_maximal_safe_paths() = 0;
 };

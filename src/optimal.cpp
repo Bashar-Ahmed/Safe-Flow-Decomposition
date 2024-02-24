@@ -1,6 +1,7 @@
 #include "optimal.hpp"
 
-Optimal::Optimal(const std::string &graph, bool heuristics) : Graph(graph), heuristics(heuristics)
+template <bool H>
+Optimal<H>::Optimal(const std::string &graph) : Graph(graph)
 {
     f_in.resize(nodes, 0);
     f_out.resize(nodes, 0);
@@ -49,7 +50,8 @@ Optimal::Optimal(const std::string &graph, bool heuristics) : Graph(graph), heur
     construct_forest();
 }
 
-int Optimal::binary_search_1(Forest_Node *node, double flow)
+template <bool H>
+int Optimal<H>::binary_search_1(Forest_Node *node, double flow)
 {
     int l = 0;
     int r = node->depth;
@@ -65,7 +67,8 @@ int Optimal::binary_search_1(Forest_Node *node, double flow)
     return node->level_ancestor(r)->value;
 }
 
-int Optimal::binary_search_2(Forest_Node *node_1, Forest_Node *node_2)
+template <bool H>
+int Optimal<H>::binary_search_2(Forest_Node *node_1, Forest_Node *node_2)
 {
     int l = node_2->depth + 1;
     int r = node_1->depth;
@@ -82,7 +85,8 @@ int Optimal::binary_search_2(Forest_Node *node_1, Forest_Node *node_2)
     return node_1->level_ancestor(l)->value;
 }
 
-void Optimal::compute_non_trivial()
+template <bool H>
+void Optimal<H>::compute_non_trivial()
 {
     for (int i = 0; i < nodes; i++)
     {
@@ -107,7 +111,7 @@ void Optimal::compute_non_trivial()
                     double flow = p.second - in_loss - (forest_out[r]->loss - j_loss);
                     if (!left_extendible(l, flow) && !right_extendible(r, flow))
                     {
-                        if (heuristics)
+                        if constexpr (H)
                         {
                             if (l == i)
                                 optimal_repr_l.emplace_back(flow, std::vector<int>{i, j, r});
@@ -129,21 +133,24 @@ void Optimal::compute_non_trivial()
     }
 }
 
-bool Optimal::left_extendible(int node, double flow)
+template <bool H>
+bool Optimal<H>::left_extendible(int node, double flow)
 {
     if (f_in[node] == 0)
         return false;
     return flow > f_in[node] - f_max_in[node];
 }
 
-bool Optimal::right_extendible(int node, double flow)
+template <bool H>
+bool Optimal<H>::right_extendible(int node, double flow)
 {
     if (f_out[node] == 0)
         return false;
     return flow > f_out[node] - f_max_out[node];
 }
 
-void Optimal::compute_trivial()
+template <bool H>
+void Optimal<H>::compute_trivial()
 {
     std::vector<bool> visited(nodes, false);
     for (int i = 0; i < nodes; i++)
@@ -172,7 +179,7 @@ void Optimal::compute_trivial()
                 {
                     if (r_value != x_parent && (!left_extendible(r_value, flow - loss)))
                     {
-                        if (heuristics)
+                        if constexpr (H)
                             trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_value});
                         else
                             trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_parent, x_value});
@@ -186,7 +193,7 @@ void Optimal::compute_trivial()
             {
                 if (y != x_parent && (!left_extendible(y, flow - loss)))
                 {
-                    if (heuristics)
+                    if constexpr (H)
                         trivial.emplace_back(flow - loss, std::vector<int>{y, x_value});
                     else
                         trivial.emplace_back(flow - loss, std::vector<int>{y, x_parent, x_value});
@@ -200,9 +207,10 @@ void Optimal::compute_trivial()
     }
 }
 
-void Optimal::print_maximal_safe_paths()
+template <bool H>
+void Optimal<H>::print_maximal_safe_paths()
 {
-    std::cout << std::fixed << std::setprecision(0);
+
     std::cout << metadata << "\n";
     for (auto &&path : optimal_repr)
     {
@@ -212,7 +220,7 @@ void Optimal::print_maximal_safe_paths()
         std::cout << "\n";
     }
     std::cout << "\n";
-    if (heuristics)
+    if constexpr (H)
     {
         for (auto &&path : optimal_repr_l)
         {
@@ -241,7 +249,8 @@ void Optimal::print_maximal_safe_paths()
     return;
 }
 
-void Optimal::construct_forest()
+template <bool H>
+void Optimal<H>::construct_forest()
 {
     for (int i = 0; i < nodes; i++)
     {
@@ -288,7 +297,8 @@ void Optimal::construct_forest()
     }
 }
 
-void Optimal::dfs_in(int n, int &label)
+template <bool H>
+void Optimal<H>::dfs_in(int n, int &label)
 {
     forest_in[n]->init_node(label);
     label++;
@@ -300,7 +310,8 @@ void Optimal::dfs_in(int n, int &label)
     }
 }
 
-void Optimal::dfs_out(int n, int &label)
+template <bool H>
+void Optimal<H>::dfs_out(int n, int &label)
 {
     forest_out[n]->init_node(label);
     label++;
@@ -311,3 +322,6 @@ void Optimal::dfs_out(int n, int &label)
         dfs_out(child, label);
     }
 }
+
+template class Optimal<true>;
+template class Optimal<false>;

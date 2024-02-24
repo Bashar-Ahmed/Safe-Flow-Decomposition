@@ -1,6 +1,6 @@
 
+#include "utility.hpp"
 #include "old.hpp"
-#include "test.hpp"
 
 class RawRepT : public Base
 {
@@ -8,9 +8,8 @@ protected:
     void generate_result()
     {
         std::string graph_string = Graph::read();
-        Old<RAW> *graph = new Old<RAW>(graph_string, true);
-        graph->decompose_path();
-        graph->compute_safe();
+
+        RAWREPT
 
         for (auto &&path_instance : graph->raw_repr)
         {
