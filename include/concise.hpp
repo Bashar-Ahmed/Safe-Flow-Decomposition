@@ -1,7 +1,7 @@
 #pragma once
 
-#include "graph.hpp"
-#include "trie.hpp"
+#include <graph.hpp>
+#include <trie.hpp>
 
 typedef std::tuple<std::shared_ptr<Concise_Node>, int, double> Route;
 typedef std::tuple<int, int, double> Cut;

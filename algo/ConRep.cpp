@@ -1,4 +1,4 @@
-#include "utility.hpp"
-#include "old.hpp"
+#include <main.hpp>
+#include <old.hpp>
 
 GENERATE_MAIN(CONREP)

@@ -1,4 +1,4 @@
-#include "concise.hpp"
+#include <concise.hpp>
 
 template <bool H>
 Concise<H>::Concise(const std::string &graph) : Graph(graph)

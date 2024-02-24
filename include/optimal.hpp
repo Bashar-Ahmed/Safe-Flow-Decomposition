@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graph.hpp"
+#include <graph.hpp>
 
 struct Forest_Node;
 

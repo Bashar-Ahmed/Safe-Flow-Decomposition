@@ -1,4 +1,4 @@
-#include "utility.hpp"
-#include "optimal.hpp"
+#include <main.hpp>
+#include <optimal.hpp>
 
 GENERATE_MAIN(OPTREPH)

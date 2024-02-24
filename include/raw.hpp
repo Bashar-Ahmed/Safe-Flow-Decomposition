@@ -1,7 +1,7 @@
 #pragma once
 
-#include "graph.hpp"
-#include "trie.hpp"
+#include <graph.hpp>
+#include <trie.hpp>
 
 struct Raw : public Graph
 {

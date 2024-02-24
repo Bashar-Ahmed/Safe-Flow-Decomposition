@@ -1,13 +1,11 @@
-#include "utility.hpp"
-#include "concise.hpp"
+#include <test.hpp>
+#include <concise.hpp>
 
 class OptCon : public Base
 {
 protected:
-    void generate_result()
+    void generate_result(std::string graph_string)
     {
-        std::string graph_string = Graph::read();
-
         OPTCON
 
         for (auto &&path_instance : graph->concise_repr)

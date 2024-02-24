@@ -32,7 +32,7 @@ struct Graph
                 continue;
             return temp;
         }
-        return "";
+        return "EOF";
     };
 
     Graph(const std::string &graph)

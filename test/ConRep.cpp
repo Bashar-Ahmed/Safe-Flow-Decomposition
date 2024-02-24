@@ -1,14 +1,12 @@
 
-#include "utility.hpp"
-#include "old.hpp"
+#include <test.hpp>
+#include <old.hpp>
 
 class ConRep : public Base
 {
 protected:
-    void generate_result()
+    void generate_result(std::string graph_string)
     {
-        std::string graph_string = Graph::read();
-
         CONREP
 
         Old<RAW> *dummy = new Old<RAW>(graph_string);

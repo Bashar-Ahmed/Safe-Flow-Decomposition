@@ -1,4 +1,4 @@
-#include "optimal.hpp"
+#include <optimal.hpp>
 
 template <bool H>
 Optimal<H>::Optimal(const std::string &graph) : Graph(graph)

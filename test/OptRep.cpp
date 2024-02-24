@@ -1,13 +1,11 @@
-#include "utility.hpp"
-#include "optimal.hpp"
+#include <test.hpp>
+#include <optimal.hpp>
 
 class OptRep : public Base
 {
 protected:
-    void generate_result()
+    void generate_result(std::string graph_string)
     {
-        std::string graph_string = Graph::read();
-
         OPTREP
 
         result = std::move(graph->optimal_repr);

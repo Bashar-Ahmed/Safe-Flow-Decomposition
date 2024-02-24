@@ -1,14 +1,12 @@
 
-#include "utility.hpp"
-#include "old.hpp"
+#include <test.hpp>
+#include <old.hpp>
 
 class RawRep : public Base
 {
 protected:
-    void generate_result()
+    void generate_result(std::string graph_string)
     {
-        std::string graph_string = Graph::read();
-
         RAWREP
 
         std::shared_ptr<AC_Trie<double>> root = std::make_shared<AC_Trie<double>>();

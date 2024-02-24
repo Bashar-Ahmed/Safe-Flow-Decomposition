@@ -1,7 +1,7 @@
 #pragma once
 
-#include "graph.hpp"
-#include "trie.hpp"
+#include <graph.hpp>
+#include <trie.hpp>
 
 typedef std::vector<std::pair<int, double>>::iterator Iterator;
 typedef std::tuple<int, int, double> Cut;

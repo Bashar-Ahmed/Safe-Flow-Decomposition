@@ -1,14 +1,12 @@
 
-#include "utility.hpp"
-#include "old.hpp"
+#include <test.hpp>
+#include <old.hpp>
 
 class RawRepT : public Base
 {
 protected:
-    void generate_result()
+    void generate_result(std::string graph_string)
     {
-        std::string graph_string = Graph::read();
-
         RAWREPT
 
         for (auto &&path_instance : graph->raw_repr)

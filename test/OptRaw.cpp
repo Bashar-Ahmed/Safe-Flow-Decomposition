@@ -1,13 +1,11 @@
-#include "utility.hpp"
-#include "raw.hpp"
+#include <test.hpp>
+#include <raw.hpp>
 
 class OptRaw : public Base
 {
 protected:
-    void generate_result()
+    void generate_result(std::string graph_string)
     {
-        std::string graph_string = Graph::read();
-
         OPTRAW
 
         result = std::move(graph->raw_repr);
