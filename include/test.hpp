@@ -1,6 +1,8 @@
 #include <utility.hpp>
 #include <graph.hpp>
 
+inline std::ifstream Graph::input;
+
 #define GENERATE_TESTS(ALGORITHM)       \
     GENERATE_TEST(ALGORITHM, zebrafish) \
     GENERATE_TEST(ALGORITHM, mouse)     \
@@ -12,7 +14,7 @@
 #define GENERATE_TEST(ALGORITHM, dataset)                    \
     TEST_F(ALGORITHM, dataset)                               \
     {                                                        \
-        input_file.open(dataset##_graph, std::ifstream::in); \
+        input_file = dataset##_graph;                        \
         truth_file.open(dataset##_truth, std::ifstream::in); \
         int error = run();                                   \
         EXPECT_EQ(error, -1);                                \
@@ -22,7 +24,8 @@ class Base : public ::testing::Test
 {
 protected:
     int graph_number = -1;
-    std::ifstream input_file, truth_file;
+    std::string input_file;
+    std::ifstream truth_file;
     std::vector<std::pair<double, std::vector<int>>> truth, result;
     virtual void generate_result(std::string graph_string) = 0;
 
@@ -38,7 +41,7 @@ protected:
 
     int run()
     {
-        std::cin.rdbuf(input_file.rdbuf());
+        Graph::init(input_file);
         bool end = read_truth();
         while (!end)
         {

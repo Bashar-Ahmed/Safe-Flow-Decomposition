@@ -1,19 +1,21 @@
 #include <utility.hpp>
 
 #define GENERATE_MAIN(BODY)                           \
-    int main()                                        \
+    std::ifstream Graph::input;                       \
+    int main(int argc, char *argv[])                  \
     {                                                 \
-        Graph::init();                                \
-                                                      \
+        if (argc == 1)                                \
+        {                                             \
+            std::cout << "NO INPUT FILE SPECIFIED\n"; \
+            return 0;                                 \
+        }                                             \
+        Graph::init(argv[1]);                         \
         while (true)                                  \
         {                                             \
             std::string graph_string = Graph::read(); \
-            if (graph_string == "EOF")                   \
+            if (graph_string == "EOF")                \
                 break;                                \
-                                                      \
-            BODY                                      \
-                                                      \
-                graph->print_maximal_safe_paths();    \
+            BODY;                                     \
             delete graph;                             \
         }                                             \
         return 0;                                     \

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <algorithm>
-#include <limits>
-#include <list>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
+#include <list>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -16,17 +17,21 @@ struct Graph
     std::string metadata;
     std::vector<std::vector<std::pair<int, double>>> adjacency_list;
 
-    static void init()
+    static std::ifstream input;
+
+    static void init(std::string file)
     {
         std::ios_base::sync_with_stdio(false);
         std::cin.tie(NULL);
         std::cout << std::fixed << std::setprecision(0);
+        input.close();
+        input.open(file, std::ifstream::in);
     }
 
     static std::string read()
     {
         std::string temp;
-        while (std::getline(std::cin, temp, '#'))
+        while (std::getline(input, temp, '#'))
         {
             if (temp.length() == 0)
                 continue;
@@ -73,6 +78,6 @@ struct Graph
         edges = line - 2;
     };
 
-    virtual ~Graph() {}
+    virtual ~Graph() = default;
     virtual void print_maximal_safe_paths() = 0;
 };

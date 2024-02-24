@@ -14,6 +14,7 @@ struct Raw : public Graph
     std::vector<std::pair<double, std::vector<int>>> raw_repr;
 
     Raw(const std::string &graph);
+    ~Raw() { print_maximal_safe_paths(); }
     void compute_safe(int u);
 
     void print_maximal_safe_paths() override;

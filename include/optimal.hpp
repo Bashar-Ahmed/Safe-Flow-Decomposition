@@ -14,6 +14,7 @@ struct Optimal : public Graph
     std::vector<std::pair<double, std::vector<int>>> optimal_repr, optimal_repr_l, optimal_repr_r, trivial;
 
     Optimal(const std::string &graph);
+    ~Optimal() { print_maximal_safe_paths(); }
     int binary_search_1(Forest_Node *node, double flow);
     int binary_search_2(Forest_Node *node_1, Forest_Node *node_2);
     void compute_non_trivial();

@@ -21,6 +21,7 @@ struct Concise : public Graph
     std::vector<Path<Cut>> concise_repr;
 
     Concise(const std::string &graph);
+    ~Concise() { print_maximal_safe_paths(); }
     void compute_safe(int u);
 
     void print_maximal_safe_paths() override;

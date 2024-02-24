@@ -26,6 +26,7 @@ struct Old : public Graph
     std::vector<Path<Cut>> concise_repr;
 
     Old(const std::string &graph);
+    ~Old() { print_maximal_safe_paths(); }
     void decompose_path();
     void insert(std::shared_ptr<AC_Trie<data>> &root, std::deque<int> &str);
     void compute_safe();
