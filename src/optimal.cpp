@@ -49,6 +49,12 @@ Optimal<H>::Optimal(const std::string &graph) : Graph(graph)
 
     construct_forest();
 }
+template <bool H>
+Optimal<H>::~Optimal()
+{
+    if (store && print)
+        print_safe_paths();
+}
 
 template <bool H>
 int Optimal<H>::binary_search_1(Forest_Node *node, double flow)
@@ -208,7 +214,7 @@ void Optimal<H>::compute_trivial()
 }
 
 template <bool H>
-void Optimal<H>::print_maximal_safe_paths()
+void Optimal<H>::print_safe_paths()
 {
 
     std::cout << metadata << "\n";

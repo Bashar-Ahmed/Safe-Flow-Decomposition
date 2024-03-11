@@ -42,6 +42,13 @@ Concise<H>::Concise(const std::string &graph) : Graph(graph)
 }
 
 template <bool H>
+Concise<H>::~Concise()
+{
+    if (store && print)
+        print_safe_paths();
+}
+
+template <bool H>
 void Concise<H>::compute_safe(int u)
 {
     int v_max_out_u = -1;
@@ -195,7 +202,7 @@ void Concise<H>::compute_safe(int u)
 }
 
 template <bool H>
-void Concise<H>::print_maximal_safe_paths()
+void Concise<H>::print_safe_paths()
 {
     std::cout << metadata << "\n";
     for (auto &path_ind : concise_repr)

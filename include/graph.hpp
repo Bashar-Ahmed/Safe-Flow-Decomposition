@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -17,15 +18,19 @@ struct Graph
     std::string metadata;
     std::vector<std::vector<std::pair<int, double>>> adjacency_list;
 
+    static inline bool store, print;
     static std::ifstream input;
 
-    static void init(std::string file)
+    static void init(char const *argv[])
     {
+        Graph::store = strcmp(argv[2], "true") ? false : true;
+        Graph::print = strcmp(argv[3], "true") ? false : true;
+
         std::ios_base::sync_with_stdio(false);
         std::cin.tie(NULL);
         std::cout << std::fixed << std::setprecision(0);
         input.close();
-        input.open(file, std::ifstream::in);
+        input.open(std::string(argv[1]), std::ifstream::in);
     }
 
     static std::string read()
@@ -79,5 +84,5 @@ struct Graph
     };
 
     virtual ~Graph() = default;
-    virtual void print_maximal_safe_paths() = 0;
+    virtual void print_safe_paths() = 0;
 };

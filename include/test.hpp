@@ -41,7 +41,8 @@ protected:
 
     int run()
     {
-        Graph::init(input_file);
+        char const *arg[] = {"", input_file.data(), "true", "false"};
+        Graph::init(arg);
         bool end = read_truth();
         while (!end)
         {

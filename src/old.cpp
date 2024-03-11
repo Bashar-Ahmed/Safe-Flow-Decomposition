@@ -22,6 +22,13 @@ Old<A, T>::Old(const std::string &graph) : Graph(graph)
 }
 
 template <ALGO A, bool T>
+Old<A, T>::~Old()
+{
+	if (store && print)
+		print_safe_paths();
+}
+
+template <ALGO A, bool T>
 void Old<A, T>::decompose_path()
 {
 
@@ -261,7 +268,7 @@ void Old<A, T>::compress_path(data payload, std::deque<int> &route, std::shared_
 }
 
 template <ALGO A, bool T>
-void Old<A, T>::print_maximal_safe_paths()
+void Old<A, T>::print_safe_paths()
 {
 	std::cout << metadata << "\n";
 	if constexpr (A == RAW)

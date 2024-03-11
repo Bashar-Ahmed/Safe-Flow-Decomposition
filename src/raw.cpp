@@ -39,6 +39,12 @@ Raw::Raw(const std::string &graph) : Graph(graph)
         trie.emplace_back(std::make_unique<Path_Trie<Raw_Node>>(i));
 }
 
+Raw::~Raw()
+{
+    if (store && print)
+        print_safe_paths();
+}
+
 void Raw::compute_safe(int u)
 {
     int v_max_out_u = -1;
@@ -134,7 +140,7 @@ void Raw::compute_safe(int u)
     return;
 }
 
-void Raw::print_maximal_safe_paths()
+void Raw::print_safe_paths()
 {
     std::cout << metadata << "\n";
     for (auto &&path : raw_repr)

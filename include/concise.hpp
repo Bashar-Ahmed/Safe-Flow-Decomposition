@@ -21,10 +21,10 @@ struct Concise : public Graph
     std::vector<Path<Cut>> concise_repr;
 
     Concise(const std::string &graph);
-    ~Concise() { print_maximal_safe_paths(); }
+    ~Concise();
     void compute_safe(int u);
 
-    void print_maximal_safe_paths() override;
+    void print_safe_paths() override;
 
     void topo_dfs(int v, std::vector<bool> &visited);
 };
