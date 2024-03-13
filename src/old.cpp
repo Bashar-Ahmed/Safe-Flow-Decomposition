@@ -19,6 +19,9 @@ Old<A, T>::Old(const std::string &graph) : Graph(graph)
 			f_out[u] += w;
 		}
 	}
+
+	if (print)
+		std::cout << metadata << "\n";
 }
 
 template <ALGO A, bool T>
@@ -84,9 +87,19 @@ void Old<A, T>::insert(std::shared_ptr<AC_Trie<data>> &root, std::deque<int> &st
 		if (root->is_fail)
 			return;
 		if constexpr (A == RAW)
-			raw_repr.emplace_back(root->payload, str);
+		{
+			if (store)
+				raw_repr.emplace_back(root->payload, str);
+			else if (print)
+				print_safe_path(root->payload, str);
+		}
 		else
-			concise_repr.emplace_back(str, root->payload);
+		{
+			if (store)
+				concise_repr.emplace_back(str, root->payload);
+			else if (print)
+				print_safe_path(str, root->payload);
+		}
 	}
 	else
 	{
@@ -148,7 +161,12 @@ void Old<A, T>::compute_safe()
 					if constexpr (T)
 						compress_path(flow, route, root);
 					else
-						raw_repr.emplace_back(flow, route);
+					{
+						if (store)
+							raw_repr.emplace_back(flow, route);
+						else if (print)
+							print_safe_path(flow, route);
+					}
 				}
 				else
 				{
@@ -223,7 +241,12 @@ void Old<A, T>::compute_safe()
 		if constexpr (T)
 			compress_path(prev.second, prev.first, root);
 		else
-			concise_repr.emplace_back(std::move(prev));
+		{
+			if (store)
+				concise_repr.emplace_back(std::move(prev));
+			else if (print)
+				print_safe_path(prev.first, prev.second);
+		}
 	}
 
 	if constexpr (T)
@@ -268,35 +291,43 @@ void Old<A, T>::compress_path(data payload, std::deque<int> &route, std::shared_
 }
 
 template <ALGO A, bool T>
+void Old<A, T>::print_safe_path(double flow, std::deque<int> &path)
+{
+	std::cout << flow << " ";
+	for (auto &&value : path)
+		std::cout << value << " ";
+	std::cout << "\n";
+	return;
+}
+
+template <ALGO A, bool T>
+void Old<A, T>::print_safe_path(std::deque<int> &path, std::vector<Cut> &paths)
+{
+	for (auto &value : path)
+		std::cout << value << " ";
+	std::cout << "\n";
+	for (auto &ind : paths)
+	{
+		std::cout << std::get<2>(ind) << " ";
+		std::cout << std::get<0>(ind) << " ";
+		std::cout << std::get<1>(ind) << " ";
+		std::cout << "\n";
+	}
+	return;
+}
+
+template <ALGO A, bool T>
 void Old<A, T>::print_safe_paths()
 {
-	std::cout << metadata << "\n";
 	if constexpr (A == RAW)
 	{
 		for (auto &&path : raw_repr)
-		{
-			std::cout << path.first << " ";
-			for (auto &&value : path.second)
-				std::cout << value << " ";
-			std::cout << "\n";
-		}
+			print_safe_path(path.first, path.second);
 	}
 	else
 	{
 		for (auto &path_ind : concise_repr)
-		{
-			for (auto &value : path_ind.first)
-				std::cout << value << " ";
-			std::cout << "\n";
-			for (auto &ind : path_ind.second)
-			{
-				std::cout << std::get<2>(ind) << " ";
-				std::cout << std::get<0>(ind) << " ";
-				std::cout << std::get<1>(ind) << " ";
-				std::cout << "\n";
-			}
-			std::cout << "\n";
-		}
+			print_safe_path(path_ind.first, path_ind.second);
 	}
 	return;
 }

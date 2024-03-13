@@ -24,6 +24,9 @@ struct Concise : public Graph
     ~Concise();
     void compute_safe(int u);
 
+    template <typename T>
+        requires std::is_same_v<T, Cut> || std::is_same_v<T, Route>
+    void print_safe_path(std::vector<int> &path, std::vector<T> &paths);
     void print_safe_paths() override;
 
     void topo_dfs(int v, std::vector<bool> &visited);

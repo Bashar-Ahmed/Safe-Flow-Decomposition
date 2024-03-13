@@ -8,12 +8,16 @@ protected:
     {
         OPTREP
 
-        result = std::move(graph->optimal_repr);
-
         for (auto &&path : graph->trivial)
         {
             path.second.push_back(path.second[2]);
             result.push_back(std::move(path));
+        }
+
+        for (auto &&paths : graph->optimal_repr)
+        {
+            for (auto &&path : paths.second)
+                result.emplace_back(path.first, std::vector<int>{path.second[0], paths.first.first, paths.first.second, path.second[1]});
         }
 
         for (auto &&path : result)

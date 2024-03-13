@@ -32,5 +32,7 @@ struct Old : public Graph
     void compute_safe();
     void compress_path(data payload, std::deque<int> &route, std::shared_ptr<AC_Trie<data>> &root);
 
+    void print_safe_path(double flow, std::deque<int> &path);
+    void print_safe_path(std::deque<int> &path, std::vector<Cut> &paths);
     void print_safe_paths() override;
 };

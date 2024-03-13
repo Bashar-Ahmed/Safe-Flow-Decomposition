@@ -37,6 +37,9 @@ Raw::Raw(const std::string &graph) : Graph(graph)
 
     for (int i = 0; i < nodes; i++)
         trie.emplace_back(std::make_unique<Path_Trie<Raw_Node>>(i));
+
+    if (print)
+        std::cout << metadata << "\n";
 }
 
 Raw::~Raw()
@@ -114,7 +117,10 @@ void Raw::compute_safe(int u)
             {
                 path.emplace_back(current_node->value);
                 path.emplace_back(u);
-                raw_repr.emplace_back(f_x, std::move(path));
+                if (store)
+                    raw_repr.emplace_back(f_x, std::move(path));
+                else if (print)
+                    print_safe_path(f_x, path);
             }
         }
 
@@ -140,16 +146,19 @@ void Raw::compute_safe(int u)
     return;
 }
 
+void Raw::print_safe_path(double flow, std::vector<int> &path)
+{
+    std::cout << flow << " ";
+    for (auto &&value : path)
+        std::cout << value << " ";
+    std::cout << "\n";
+    return;
+}
+
 void Raw::print_safe_paths()
 {
-    std::cout << metadata << "\n";
     for (auto &&path : raw_repr)
-    {
-        std::cout << path.first << " ";
-        for (auto &&value : path.second)
-            std::cout << value << " ";
-        std::cout << "\n";
-    }
+        print_safe_path(path.first, path.second);
     return;
 }
 

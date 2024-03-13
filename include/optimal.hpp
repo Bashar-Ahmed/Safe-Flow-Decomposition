@@ -11,7 +11,8 @@ struct Optimal : public Graph
     std::vector<int> v_max_in, v_max_out, c_max_in, c_max_out;
     std::vector<std::shared_ptr<Forest_Node>> forest_in, forest_out;
 
-    std::vector<std::pair<double, std::vector<int>>> optimal_repr, optimal_repr_l, optimal_repr_r, trivial;
+    std::vector<std::pair<std::pair<int, int>, std::vector<std::pair<double, std::vector<int>>>>> optimal_repr;
+    std::vector<std::pair<double, std::vector<int>>> trivial;
 
     Optimal(const std::string &graph);
     ~Optimal();
@@ -22,6 +23,8 @@ struct Optimal : public Graph
     bool right_extendible(int node, double flow);
     void compute_trivial();
 
+    void print_safe_path(double flow, std::vector<int> path);
+    void print_safe_path(std::pair<int, int> edge, std::vector<std::pair<double, std::vector<int>>> &paths);
     void print_safe_paths() override;
 
     void construct_forest();

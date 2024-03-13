@@ -48,6 +48,9 @@ Optimal<H>::Optimal(const std::string &graph) : Graph(graph)
     }
 
     construct_forest();
+
+    if (print)
+        std::cout << metadata << "\n";
 }
 template <bool H>
 Optimal<H>::~Optimal()
@@ -101,6 +104,8 @@ void Optimal<H>::compute_non_trivial()
             int j = p.first;
             if (forest_in[j]->parent == i)
                 continue;
+            bool new_edge = true;
+            std::vector<std::pair<double, std::vector<int>>> paths;
 
             double excess_flow = p.second;
             double i_loss = forest_in[i]->loss;
@@ -117,17 +122,16 @@ void Optimal<H>::compute_non_trivial()
                     double flow = p.second - in_loss - (forest_out[r]->loss - j_loss);
                     if (!left_extendible(l, flow) && !right_extendible(r, flow))
                     {
-                        if constexpr (H)
+                        if (new_edge)
                         {
-                            if (l == i)
-                                optimal_repr_l.emplace_back(flow, std::vector<int>{i, j, r});
-                            else if (r == j)
-                                optimal_repr_r.emplace_back(flow, std::vector<int>{l, i, j});
-                            else
-                                optimal_repr.emplace_back(flow, std::vector<int>{l, i, j, r});
+                            new_edge = false;
+                            if (store)
+                                optimal_repr.emplace_back(std::make_pair(i, j), std::vector<std::pair<double, std::vector<int>>>());
                         }
-                        else
-                            optimal_repr.emplace_back(flow, std::vector<int>{l, i, j, r});
+                        if (store)
+                            optimal_repr.back().second.emplace_back(flow, std::vector<int>{l, r});
+                        else if (print)
+                            paths.emplace_back(flow, std::vector<int>{l, r});
                     }
                 }
                 int next = forest_out[r]->parent;
@@ -135,6 +139,8 @@ void Optimal<H>::compute_non_trivial()
                     break;
                 excess_flow = p.second - abs(forest_out[next]->loss - j_loss);
             }
+            if (!paths.empty())
+                print_safe_path(std::make_pair(i, j), paths);
         }
     }
 }
@@ -185,10 +191,10 @@ void Optimal<H>::compute_trivial()
                 {
                     if (r_value != x_parent && (!left_extendible(r_value, flow - loss)))
                     {
-                        if constexpr (H)
-                            trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_value});
-                        else
+                        if (store)
                             trivial.emplace_back(flow - loss, std::vector<int>{r_value, x_parent, x_value});
+                        else if (print)
+                            print_safe_path(flow - loss, std::vector<int>{r_value, x_parent, x_value});
                     }
                 }
                 break;
@@ -199,10 +205,10 @@ void Optimal<H>::compute_trivial()
             {
                 if (y != x_parent && (!left_extendible(y, flow - loss)))
                 {
-                    if constexpr (H)
-                        trivial.emplace_back(flow - loss, std::vector<int>{y, x_value});
-                    else
+                    if (store)
                         trivial.emplace_back(flow - loss, std::vector<int>{y, x_parent, x_value});
+                    else if (print)
+                        print_safe_path(flow - loss, std::vector<int>{y, x_parent, x_value});
                 }
             }
             y = forest_in[y]->parent;
@@ -214,44 +220,48 @@ void Optimal<H>::compute_trivial()
 }
 
 template <bool H>
+void Optimal<H>::print_safe_path(double flow, std::vector<int> path)
+{
+    std::cout << flow << " ";
+    std::cout << path[0] << " ";
+    if constexpr (!H)
+        std::cout << path[1] << " ";
+    std::cout << path[2];
+    std::cout << "\n";
+    return;
+}
+
+template <bool H>
+void Optimal<H>::print_safe_path(std::pair<int, int> edge, std::vector<std::pair<double, std::vector<int>>> &paths)
+{
+    std::cout << edge.first << " " << edge.second << "\n";
+    for (auto &&path : paths)
+    {
+        std::cout << path.first << " ";
+        if constexpr (H)
+        {
+            if (path.second[0] != edge.first)
+                std::cout << path.second[0] << " ";
+            if (path.second[1] != edge.second)
+                std::cout << path.second[1];
+        }
+        else
+        {
+            std::cout << path.second[0] << " ";
+            std::cout << path.second[1];
+        }
+        std::cout << "\n";
+    }
+    return;
+}
+
+template <bool H>
 void Optimal<H>::print_safe_paths()
 {
-
-    std::cout << metadata << "\n";
     for (auto &&path : optimal_repr)
-    {
-        std::cout << path.first << " ";
-        for (auto &&value : path.second)
-            std::cout << value << " ";
-        std::cout << "\n";
-    }
-    std::cout << "\n";
-    if constexpr (H)
-    {
-        for (auto &&path : optimal_repr_l)
-        {
-            std::cout << path.first << " ";
-            for (auto &&value : path.second)
-                std::cout << value << " ";
-            std::cout << "\n";
-        }
-        std::cout << "\n";
-        for (auto &&path : optimal_repr_r)
-        {
-            std::cout << path.first << " ";
-            for (auto &&value : path.second)
-                std::cout << value << " ";
-            std::cout << "\n";
-        }
-        std::cout << "\n";
-    }
+        print_safe_path(path.first, path.second);
     for (auto &&path : trivial)
-    {
-        std::cout << path.first << " ";
-        for (auto &&value : path.second)
-            std::cout << value << " ";
-        std::cout << "\n";
-    }
+        print_safe_path(path.first, path.second);
     return;
 }
 

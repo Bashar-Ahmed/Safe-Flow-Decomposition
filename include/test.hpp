@@ -16,8 +16,7 @@ inline std::ifstream Graph::input;
     {                                                        \
         input_file = dataset##_graph;                        \
         truth_file.open(dataset##_truth, std::ifstream::in); \
-        int error = run();                                   \
-        EXPECT_EQ(error, -1);                                \
+        run();                                               \
     }
 
 class Base : public ::testing::Test
@@ -29,17 +28,19 @@ protected:
     std::vector<std::pair<double, std::vector<int>>> truth, result;
     virtual void generate_result(std::string graph_string) = 0;
 
-    bool verify()
+    void verify()
     {
         std::sort(truth.begin(), truth.end());
         std::sort(result.begin(), result.end());
         bool eq = truth == result;
+        SCOPED_TRACE(graph_number);
+        EXPECT_TRUE(eq);
         truth.clear();
         result.clear();
-        return eq;
+        return;
     }
 
-    int run()
+    void run()
     {
         char const *arg[] = {"", input_file.data(), "true", "false"};
         Graph::init(arg);
@@ -49,13 +50,11 @@ protected:
             graph_number++;
             end = read_truth();
             generate_result(Graph::read());
-            if (!verify())
-                return graph_number;
+            verify();
         }
         graph_number++;
-        if (Graph::read() != "EOF")
-            return graph_number;
-        return -1;
+        EXPECT_TRUE(Graph::read() == "EOF");
+        return;
     }
 
     bool read_truth()

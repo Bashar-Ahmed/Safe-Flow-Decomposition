@@ -8,25 +8,16 @@ protected:
     {
         OPTREPH
 
-        result = std::move(graph->optimal_repr);
-
-        for (auto &&path : graph->optimal_repr_l)
-        {
-            path.second.insert(path.second.begin(), path.second[0]);
-            result.push_back(std::move(path));
-        }
-
-        for (auto &&path : graph->optimal_repr_r)
-        {
-            path.second.push_back(path.second[2]);
-            result.push_back(std::move(path));
-        }
-
         for (auto &&path : graph->trivial)
         {
-            path.second.insert(path.second.begin() + 1, graph->forest_in[path.second[1]]->parent);
             path.second.push_back(path.second[2]);
             result.push_back(std::move(path));
+        }
+
+        for (auto &&paths : graph->optimal_repr)
+        {
+            for (auto &&path : paths.second)
+                result.emplace_back(path.first, std::vector<int>{path.second[0], paths.first.first, paths.first.second, path.second[1]});
         }
 
         for (auto &&path : result)

@@ -39,6 +39,9 @@ Concise<H>::Concise(const std::string &graph) : Graph(graph)
 
     for (int i = 0; i < nodes; i++)
         trie.emplace_back(std::make_unique<Path_Trie<Concise_Node>>(i));
+
+    if (print)
+        std::cout << metadata << "\n";
 }
 
 template <bool H>
@@ -155,9 +158,14 @@ void Concise<H>::compute_safe(int u)
             I_k.pop_back();
             if (!I_k.empty())
             {
-                concise_repr.emplace_back(std::move(p_k), std::vector<Cut>());
-                std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](Route &r)
-                               { return Cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
+                if (store)
+                {
+                    concise_repr.emplace_back(std::move(p_k), std::vector<Cut>());
+                    std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](Route &r)
+                                   { return Cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
+                }
+                else if (print)
+                    print_safe_path(p_k, I_k);
             }
             I_k.clear();
             p_k.clear();
@@ -186,9 +194,14 @@ void Concise<H>::compute_safe(int u)
                 p_k.emplace_back(x->value);
                 x = x->parent;
             }
-            concise_repr.emplace_back(std::move(p_k), std::vector<Cut>());
-            std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](Route &r)
-                           { return Cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
+            if (store)
+            {
+                concise_repr.emplace_back(std::move(p_k), std::vector<Cut>());
+                std::transform(I_k.begin(), I_k.end(), std::back_inserter(concise_repr.back().second), [](Route &r)
+                               { return Cut(std::get<0>(r)->value, std::get<1>(r), std::get<2>(r)); });
+            }
+            else if (print)
+                print_safe_path(p_k, I_k);
         }
     }
 
@@ -202,45 +215,57 @@ void Concise<H>::compute_safe(int u)
 }
 
 template <bool H>
+template <typename T>
+    requires std::is_same_v<T, Cut> || std::is_same_v<T, Route>
+void Concise<H>::print_safe_path(std::vector<int> &path, std::vector<T> &paths)
+{
+    for (auto &value : path)
+        std::cout << value << " ";
+    std::cout << "\n";
+    if constexpr (H)
+    {
+        int start = path.front();
+        int end = path.back();
+        int prev_end = -1;
+        for (auto &ind : paths)
+        {
+            int l;
+            if constexpr (std::is_same_v<T, Cut>)
+                l = std::get<0>(ind);
+            else if constexpr (std::is_same_v<T, Route>)
+                l = std::get<0>(ind)->value;
+            int r = std::get<1>(ind);
+            double flow = std::get<2>(ind);
+            std::cout << flow << " ";
+            if (l != start && l != prev_end)
+                std::cout << l << " ";
+            if (r != end)
+                std::cout << r << " ";
+            std::cout << "\n";
+            prev_end = r;
+        }
+    }
+    else
+    {
+        for (auto &ind : paths)
+        {
+            std::cout << std::get<2>(ind) << " ";
+            if constexpr (std::is_same_v<T, Cut>)
+                std::cout << std::get<0>(ind) << " ";
+            else if constexpr (std::is_same_v<T, Route>)
+                std::cout << std::get<0>(ind)->value << " ";
+            std::cout << std::get<1>(ind) << " ";
+            std::cout << "\n";
+        }
+    }
+    return;
+}
+
+template <bool H>
 void Concise<H>::print_safe_paths()
 {
-    std::cout << metadata << "\n";
-    for (auto &path_ind : concise_repr)
-    {
-        for (auto &value : path_ind.first)
-            std::cout << value << " ";
-        std::cout << "\n";
-        if constexpr (H)
-        {
-            int start = path_ind.first.front();
-            int end = path_ind.first.back();
-            int prev_end = -1;
-            for (auto &ind : path_ind.second)
-            {
-                int l = std::get<0>(ind);
-                int r = std::get<1>(ind);
-                int flow = std::get<2>(ind);
-                std::cout << flow << " ";
-                if (l != start && l != prev_end)
-                    std::cout << l << " ";
-                if (r != end)
-                    std::cout << r << " ";
-                std::cout << "\n";
-                prev_end = r;
-            }
-        }
-        else
-        {
-            for (auto &ind : path_ind.second)
-            {
-                std::cout << std::get<2>(ind) << " ";
-                std::cout << std::get<0>(ind) << " ";
-                std::cout << std::get<1>(ind) << " ";
-                std::cout << "\n";
-            }
-        }
-        std::cout << "\n";
-    }
+    for (auto &path : concise_repr)
+        print_safe_path(path.first, path.second);
     return;
 }
 
