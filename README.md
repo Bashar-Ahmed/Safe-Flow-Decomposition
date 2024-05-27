@@ -30,16 +30,17 @@ cd build
 ctest -R [DATASET_NAME] 
 ```
 
-## Algorithms
-- RawRep
-- RawRepT
-- ConRep
-- ConRepT
-- OptRaw
-- OptCon
-- OptConH
-- OptRep
-- OptRepH
+## Algorithms  
+[ALGORITHM_NAME] ([ALGORITHM_NAME_AS_MENTIONED_IN_PAPER])
+- RawRep (RawRep<sub>o</sub>)
+- RawRepT (RawRep)
+- ConRep (ConRep<sub>o</sub>)
+- ConRepT (ConRep)
+- OptRaw (OptRawRep)
+- OptCon (OptConRep)
+- OptConH (OptConRep<sup>#</sup>)
+- OptRep (OptRep)
+- OptRepH (OptRep<sup>#</sup>)
 
 ## Datasets
 - Reference-Sim
@@ -50,3 +51,7 @@ ctest -R [DATASET_NAME]
     - salmon
     - zebrafish
     - simulation
+ - Randomly Generated
+    - Uniform Random
+    - Power Law
+    - Improved Random 
